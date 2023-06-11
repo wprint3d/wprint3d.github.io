@@ -6,12 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="assets/css/starter.css">
     <title> WPrint 3D - Landing </title>
+
+    <style>
+        .promo-img {
+            width: 100%;
+            height: 40vh;
+            object-fit: contain;
+        }
+    </style>
 </head>
 
 <body>
-    <header class="site-header sticky-top py-1 bg-dark">
+    <header class="site-header sticky-top py-1 bg-primary">
         <nav class="container d-flex flex-column flex-md-row justify-content-center">
-            <a class="py-2 d-inline-block text-center" href="#"> WPrint 3D </a>
+            <a class="py-2 d-inline-block text-center text-light" href="#"> WPrint 3D </a>
         </nav>
     </header>
 
@@ -29,18 +37,58 @@
         <div class="d-md-flex flex-md-equal w-100 my-md-3 ps-md-3">
             <div class="text-bg-dark me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
                 <div class="my-3 py-3">
-                    <h2 class="display-5"> Fully dockerized </h2>
+                    <img class="promo-img mb-4" src="assets/img/printers.jpg">
+
+                    <h2 class="display-5"> One host, multiple printers </h2>
                     <p class="lead">
-                        A simple and easy-to-use setup that allow for dynamic updates.
+                        Connect, manage and use multiple printers from a single machine. <sup>*</sup>
+                    </p>
+
+                    <small class="text-muted">
+                        * Currently, only one print job will be active at a time. Multiple queued print jobs will be resolved sequentially.
+                    </small>
+                </div>
+                <!-- <div class="bg-light shadow-sm mx-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;"></div> -->
+            </div>
+            <div class="me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
+                <div class="my-3 p-3">
+                    <img class="promo-img mb-4" src="assets/img/recording.jpg">
+
+                    <h2 class="display-5"> Record your prints </h2>
+                    <p class="lead">
+                        A simple and easy-to-use interface to record timelapses of the printing process. <br>
+                        <br>
+                        Record from up to <span class="font-weight-bold">16 cameras</span> simultaneously! <sup>*</sup>
+                    </p>
+
+                    <small class="text-muted">
+                        * Requires enough USB bandwidth to support all of the cameras running at the same time. <br>
+                        On a <span class="font-weight-bold">Raspberry Pi 3</span>, up to 2 cameras are supported: a Raspberry Pi Camera and a USB camera.
+                    </small>
+                </div>
+                <!-- <div class="bg-dark shadow-sm mx-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;"></div> -->
+            </div>
+        </div>
+
+        <div class="d-md-flex flex-md-equal w-100 my-md-3 ps-md-3">
+            <div class="text-bg-dark me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
+                <div class="my-3 py-3">
+                    <img class="promo-img mb-4" src="assets/img/ui_promo.jpg">
+
+                    <h2 class="display-5"> Everything at the right place </h2>
+                    <p class="lead">
+                        Connected printers, current and target temperatures, webcam previews and your preferred materials in a single place.
                     </p>
                 </div>
                 <!-- <div class="bg-light shadow-sm mx-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;"></div> -->
             </div>
-            <div class="bg-light me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
+            <div class="me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
                 <div class="my-3 p-3">
-                    <h2 class="display-5"> Multi-color support </h2>
+                    <img class="promo-img mb-4" src="assets/img/performance.jpg">
+
+                    <h2 class="display-5"> Extremely efficient </h2>
                     <p class="lead">
-                        Multi-color prints from your browser, resume with a single tap after swapping the filament.
+                        On a <span class="font-weight-bold">Raspberry Pi 3 Model B+</span> a <span class="font-weight-bold">40% CPU load average</span> was measured while printing a large file, previewing from two clients and recording <span class="font-weight-bold">in HD</span>.
                     </p>
                 </div>
                 <!-- <div class="bg-dark shadow-sm mx-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;"></div> -->
@@ -48,17 +96,23 @@
         </div>
 
         <div class="d-md-flex flex-md-equal w-100 my-md-3 ps-md-3">
-            <div class="bg-light me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
+            <div class="me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
                 <div class="my-3 p-3">
-                    <h2 class="display-5"> Dynamic updates </h2>
+                    <img class="promo-img mb-4" src="assets/img/recovery.jpg">
+
+                    <h2 class="display-5"> Automatic recovery </h2>
                     <p class="lead">
-                        Pull from the repository and get updates, with zero downtime.
+                        Don't worry aobut power outages anymore, if something goes wrong, just hit <span class="font-weight-bold">Recover</span>. <br>
+                        <br>
+                        The printer will home itself again, go back to its last state and keep going. It's that easy! 
                     </p>
                 </div>
                 <!-- <div class="bg-dark shadow-sm mx-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;"></div> -->
             </div>
             <div class="text-bg-primary me-md-3 pt-3 px-3 pt-md-5 px-md-5 text-center overflow-hidden">
                 <div class="my-3 py-3">
+                    <img class="promo-img mb-4" src="assets/img/gcode_preview.jpg">
+
                     <h2 class="display-5"> Live 3D G-code previews </h2>
                     <p class="lead">
                         Preview the G-code from the browser, in real time, just like your printer reads it.
@@ -67,6 +121,23 @@
                 <!-- <div class="bg-light shadow-sm mx-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;"></div> -->
             </div>
         </div>
+
+        <div class="d-md-flex flex-column w-100 my-md-3 ps-md-3 text-center">
+            <h1 class="mb-4"> Still not convinced? </h1>
+
+            <p class="lead">
+                <span class="font-weight-bold">WPrint 3D</span> detects changes in your hardware automatically. <br>
+                <br>
+                Plug your printers and cameras in and out whenever you want, they'll always be detected and ready to go in just a few seconds!
+            </p>
+        </div>
+
+        <small class="d-block text-center text-muted mt-5 mb-1">
+            <span class="font-weight-bold">WPrint 3D</span> is open-source software which is provided as-is, regardless of that matter, it's currently in an <span class="font-weight-bold">alpha</span> stage. <br>
+            Tons of effort has been put into testing the software and making sure that it works properly, however, being a relatively recent pre-relase, it's possible that some critical bugs went under the radar. <br>
+            <br>
+            If you've found any problems, feel free to <a class="text-info" href="https://github.com/wprint3d/wprint3d/issues/new">open a new issue</a>.
+        </small>
     </main>
 
     <footer class="container py-5">
