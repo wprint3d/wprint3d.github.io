@@ -45,7 +45,10 @@
                     </p>
 
                     <small class="text-muted">
-                        * Currently, only one print job will be active at a time. Multiple queued print jobs will be resolved sequentially.
+                        * Multiple print jobs are run simultaneously. <br>
+                        <br>
+                        The amount of simultaneous print jobs available is equal to <span class="font-weight-bold">twice</span> the count of your host's CPU threads. <br>
+                        On a <span class="font-weight-bold">Raspberry Pi 3</span>, this number is <span class="font-weight-bold">8</span>.
                     </small>
                 </div>
                 <!-- <div class="bg-light shadow-sm mx-auto" style="width: 80%; height: 300px; border-radius: 21px 21px 0 0;"></div> -->
