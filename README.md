@@ -6,7 +6,7 @@
 
 ## About
 
-`wprint3d.github.io` is a the landing website for the [WPrint 3D](https://github.com/wprint3d/wprint3d) project.
+`wprint3d.github.io` is the landing website for the [WPrint 3D](https://github.com/wprint3d/wprint3d) project.
 
 [![Build Status](https://github.com/wprint3d/wprint3d.github.io/workflows/CI/badge.svg)](https://github.com/wprint3d/wprint3d.github.io/actions)
 
