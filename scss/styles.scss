@@ -160,7 +160,7 @@ body { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org
   .bg-body-overlay         { background-color: lighten($body, 10%); }
   .bg-body-overlay-lighter { background-color: shade-color($body, 1%); }
 
-  .border-dark-subtle      { border-color: invert(#adb5bd); }
+  .border-dark-subtle      { border-color: darken(#adb5bd, 35%) !important; }
 
   img { filter: brightness(.85); }
 }
