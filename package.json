@@ -1,54 +1,36 @@
 {
-  "name": "bootstrap-npm-starter",
-  "version": "1.4.1",
+  "name": "wprint3d-landing",
+  "version": "0.0.0",
   "private": true,
-  "description": "Demo project for building a Bootstrap powered site via npm.",
-  "author": "mdo",
+  "repository": "wprint3d/wprint3d.github.io",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/twbs/bootstrap-npm-starter.git"
+  "stackblitz": {
+    "startCommand": "npm start"
   },
-  "bugs": {
-    "url": "https://github.com/twbs/bootstrap-npm-starter/issues"
-  },
-  "homepage": "https://github.com/twbs/bootstrap-npm-starter#readme",
   "scripts": {
     "build": "npm run css",
-    "css-compile": "node-sass --include-path node_modules --output-style compressed --source-map true --source-map-contents true --precision 6 scss -o assets/css/",
+    "css-compile": "sass --style compressed --source-map --embed-sources --no-error-css --load-path=node_modules scss/:assets/css/",
     "css-lint": "stylelint scss/",
-    "css-prefix": "postcss --replace assets/css/starter.css --use autoprefixer --map",
-    "css-purge": "purgecss --keyframes --css assets/css/starter.css --content index.html \"node_modules/bootstrap/js/dist/{util,modal}.js\" --output assets/css/",
+    "css-prefix": "postcss --replace assets/css/styles.css --use autoprefixer --map",
     "css": "npm-run-all css-compile css-prefix",
-    "server": "live-server --port=3000",
+    "server": "sirv --dev --no-clear --port 3000",
     "start": "npm-run-all --parallel watch server",
     "watch": "nodemon -e html,scss -x \"npm run css\"",
-    "test": "npm run css-lint && npm run css"
+    "test": "npm-run-all css-lint css"
   },
-  "keywords": [
-    "bootstrap",
-    "sass",
-    "css",
-    "javascript",
-    "starter",
-    "template"
-  ],
   "dependencies": {
-    "bootstrap": "^4.6.2",
-    "bootstrap-icons": "^1.9.1",
-    "jquery": "^3.6.1",
-    "popper.js": "^1.16.1"
+    "@popperjs/core": "^2.11.8",
+    "bootstrap": "^5.3.2"
   },
   "devDependencies": {
-    "autoprefixer": "^10.4.7",
-    "live-server": "^1.2.2",
-    "node-sass": "^7.0.1",
-    "nodemon": "^2.0.19",
+    "autoprefixer": "^10.4.17",
+    "nodemon": "^3.0.3",
     "npm-run-all": "^4.1.5",
-    "postcss": "^8.4.14",
-    "postcss-cli": "^10.0.0",
-    "purgecss": "^4.1.3",
-    "stylelint": "^14.9.1",
-    "stylelint-config-twbs-bootstrap": "^4.0.0"
+    "postcss": "^8.4.33",
+    "postcss-cli": "^11.0.0",
+    "sass": "^1.70.0",
+    "sirv-cli": "^2.0.2",
+    "stylelint": "^16.2.1",
+    "stylelint-config-twbs-bootstrap": "^14.0.0"
   }
 }
