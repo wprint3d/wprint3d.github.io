@@ -9,27 +9,42 @@ concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: write
+
 jobs:
-  test:
-    name: Node ${{ matrix.node }}
-    runs-on: ubuntu-latest
 
-    strategy:
-      fail-fast: false
-      matrix:
-        node: [16]
-
+  build:
+    runs-on: ubuntu-22.04
     steps:
-      - name: Clone repository
-        uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+      -
+        name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          node-version: "${{ matrix.node }}"
-
-      - name: Install npm dependencies
-        run: npm ci
-
-      - name: Test
-        run: npm test
+          node-version: 20
+      -
+        name: Install PNPM
+        run: npm install -g pnpm
+      -
+        name: Install Yarn
+        run: npm install -g yarn
+      -
+        name: Install dependencies
+        run: pnpm install
+      -
+        name: Compile the bundle
+        run: pnpm exec expo export --platform web
+      -
+        name: Copy extra assets to the dist folder
+        run: cp -fv ./install ./dist
+      -
+        name: Disable Jekyll
+        run: touch ./dist/.nojekyll
+      -
+        name: Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist
