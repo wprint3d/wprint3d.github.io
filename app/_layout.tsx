@@ -12,7 +12,7 @@ export default function RootLayout() {
         <meta name="description" content="Print from anywhere!" />
       </Head>
     
-      <Stack screenOptions={{ headerShown: false }} />;
+      <Stack screenOptions={{ headerShown: false }} />
     </>
   );
 }
