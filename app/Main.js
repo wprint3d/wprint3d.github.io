@@ -158,7 +158,7 @@ const Main = () => {
                                 )
                             }
                         ]}>
-                            <Card style={[ styles.card, { backgroundColor: theme.colors.elevation.level2 } ]}>
+                            <Card style={[ styles.card, { backgroundColor: theme.colors.elevation.level1 } ]}>
                                 <Card.Content>
                                     <Image
                                         style={styles.image}
