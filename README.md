@@ -14,6 +14,9 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
 2. Start the app
 
    ```bash
+   export EXPO_UNSTABLE_ATLAS=true
+   export EXPO_UNSTABLE_METRO_OPTIMIZE_GRAPH=1
+   export EXPO_UNSTABLE_TREE_SHAKING=1
    pnpm exec expo start
    ```
 
