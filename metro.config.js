@@ -23,6 +23,7 @@ module.exports = (() => {
 
   config.transformer.getTransformOptions = async () => ({
     transform: {
+      inlineRequires: true,
       experimentalImportSupport: true,
     },
   });
