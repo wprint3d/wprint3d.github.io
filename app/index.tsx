@@ -18,13 +18,13 @@ export default function Index() {
   return (
     <QueryClientProvider client={queryClient}>
       <PaperProvider theme={Theme()}>
-        <SnackbarProvider maxSnack={3}>
-          <Background>
-            <View style={styles.root}>
+        <Background>
+          <View style={styles.root}>
+            <SnackbarProvider maxSnack={3}>
               <Main />
-            </View>
-          </Background>
-        </SnackbarProvider>
+            </SnackbarProvider>
+          </View>
+        </Background>
       </PaperProvider>
     </QueryClientProvider>
   );
