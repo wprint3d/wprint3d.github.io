@@ -70,7 +70,7 @@ const TabDocker = ({ isSmallScreen = false }) => {
 
             <Text style={{ textAlign: 'center', marginBottom: 16 }}>
                 <Text style={{ fontWeight: 'bold' }}>
-                    This installation method is recommended for users that want keep using the host device for other purposes.
+                    This installation method is recommended for users that want to keep using the host device for other purposes.
                 </Text>
                 {'\n\n'}
                 The process consists of downloading the pre-built images and running them in Docker containers on the host device.
