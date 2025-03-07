@@ -38,19 +38,31 @@ const Main = () => {
 
     const cards = [
         {
-            image: require('../assets/images/printers.webp'),
+            image: (
+                theme.dark
+                    ? require('../assets/images/printers_dark.webp')
+                    : require('../assets/images/printers.webp')
+            ),
             title: 'One host, multiple printers',
             description: 'Connect, manage and use multiple printers from a single machine.*',
             note: 'Multiple print jobs are run simultaneously',
         },
         {
-            image: require('../assets/images/recording.webp'),
+            image: (
+                theme.dark
+                    ? require('../assets/images/recording_dark.webp')
+                    : require('../assets/images/recording.webp')
+            ),
             title: 'Record your prints',
             description: 'A simple and easy-to-use interface to record timelapses.',
             note: 'Requires enough USB bandwidth',
         },
         {
-            image: require('../assets/images/ui_promo.webp'),
+            image: (
+                theme.dark
+                    ? require('../assets/images/ui_promo_dark.webp')
+                    : require('../assets/images/ui_promo.webp')
+            ),
             title: 'Everything in one place',
             description: 'Connected printers, current and target temperatures, webcam previews and your preferred materials in a single place.',
         },
@@ -60,12 +72,20 @@ const Main = () => {
             description: 'On a **Raspberry Pi 3 Model B+** a **40% CPU load average** was measured while printing a large file, previewing from two clients and recording **in HD**.',
         },
         {
-            image: require('../assets/images/recovery.webp'),
-            title: 'Recover from failures',
-            description: 'Recover from a failed print by resuming from the last known position.',
+            image: (
+                theme.dark
+                    ? require('../assets/images/controls_dark.webp')
+                    : require('../assets/images/controls.webp')
+            ),
+            title: 'Control your printer',
+            description: 'Control your printer with a simple and easy-to-use interface, wherever you are.',
         },
         {
-            image: require('../assets/images/gcode_preview.webp'),
+            image: (
+                theme.dark
+                    ? require('../assets/images/gcode_preview_dark.webp')
+                    : require('../assets/images/gcode_preview.webp')
+            ),
             title: 'G-code preview',
             description: 'Preview your G-code file as it is being printed.',
         }
