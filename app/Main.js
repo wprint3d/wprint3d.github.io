@@ -1,8 +1,8 @@
-import { ScrollView, Image, Linking, StyleSheet, View, Dimensions, useWindowDimensions } from 'react-native';
-import { Appbar, Text, Button, Card, Title, Paragraph, useTheme, Icon } from 'react-native-paper';
-import { useVideoPlayer, VideoView } from 'expo-video';
-import { useEvent } from 'expo';
+import { ScrollView, Linking, StyleSheet, View, Dimensions, useWindowDimensions } from 'react-native';
+import { Text, Button, Card, Title, Paragraph, useTheme, ActivityIndicator } from 'react-native-paper';
 import { useEffect, useState } from 'react';
+
+import { Image } from 'expo-image';
 
 import CompatibilityHint    from './includes/CompatibilityHint';
 
@@ -14,13 +14,7 @@ import TabBareMetal         from './tabs/TabBareMetal';
 import TabDocker            from './tabs/TabDocker';
 import TabRaspberryPi       from './tabs/TabRaspberryPi';
 
-import {
-    TabsProvider,
-    Tabs,
-    TabScreen,
-    useTabIndex,
-    useTabNavigation,
-} from 'react-native-paper-tabs';
+import { TabsProvider, Tabs, TabScreen } from 'react-native-paper-tabs';
 
 import Markdown from '@ronradtke/react-native-markdown-display';
 
@@ -163,7 +157,8 @@ const Main = () => {
                                     <Image
                                         style={styles.image}
                                         source={card.image}
-                                        resizeMode="contain"
+                                        contentFit='contain'
+                                        transition={100}
                                     />
                                     <Title>{card.title}</Title>
                                     <Paragraph>
