@@ -12,8 +12,14 @@ import Theme      from "./includes/Theme";
 
 import Main from './Main';
 
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+
+import { useFonts } from 'expo-font';
+
 export default function Index() {
   const queryClient = new QueryClient();
+
+  const [isLoaded] = useFonts({ ...MaterialCommunityIcons.font });
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -21,7 +27,7 @@ export default function Index() {
         <Background>
           <View style={styles.root}>
             <SnackbarProvider maxSnack={3}>
-              <Main />
+              {isLoaded && <Main />}
             </SnackbarProvider>
           </View>
         </Background>
