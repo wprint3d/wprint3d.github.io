@@ -186,7 +186,7 @@ const Main = () => {
                 </View>
 
                 <View style={styles.footer}>
-                    <Text style={styles.footerText}>© 2024 - WPrint 3D</Text>
+                    <Text style={styles.footerText}>© 2025 - WPrint 3D</Text>
                 </View>
             </ScrollView>
 
