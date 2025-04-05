@@ -106,7 +106,7 @@ const TabDocker = ({ isSmallScreen = false }) => {
                     description='Install the Docker engine on the target machine.'
                     left={ props => <List.Icon {...props} icon='numeric-2-circle' />}
                     right={props => <List.Icon {...props} icon='arrow-right' />}
-                    onPress={() => Linking.openURL('https://docs.docker.com/desktop/setup/install/linux/')}
+                    onPress={() => Linking.openURL('https://docs.docker.com/engine/install/')}
                 />
 
                 <ClickableStep
