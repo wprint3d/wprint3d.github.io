@@ -7,6 +7,7 @@ const ClickableStep = ({ title, descriptionNumberOfLines = 4, description, left,
     return (
         <List.Item
             title={title}
+            titleStyle={{ fontWeight: 'bold' }}
             descriptionNumberOfLines={descriptionNumberOfLines}
             description={description}
             onPress={
