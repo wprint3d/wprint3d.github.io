@@ -1,14 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Linking, Platform, View } from "react-native";
-import { ActivityIndicator, List, Text } from "react-native-paper";
+import { ActivityIndicator, List, Text, useTheme } from "react-native-paper";
 
 import ClickableStep from "../includes/ClickableStep";
 import TabWrapper    from "../includes/TabWrapper";
 import CompatibilityHint from "../includes/CompatibilityHint";
 
 const TabRaspberryPi = ({ isSmallScreen = false }) => {
-    const [ showDownloadHint, setShowDownloadHint ] = useState(false);
+    const { colors } = useTheme();
 
     const imageUrlQuery = useQuery({
         enabled: false,
@@ -53,12 +53,6 @@ const TabRaspberryPi = ({ isSmallScreen = false }) => {
         downloadFile(asset.browser_download_url, asset.name);
     }, [imageUrlQuery]);
 
-    useEffect(() => {
-        const timeout = setTimeout(() => setShowDownloadHint(true), 5000);
-
-        return () => clearTimeout(timeout);
-    }, []);
-
     return (
         <TabWrapper isSmallScreen={isSmallScreen}>
             <Text style={{ width: '100%', textAlign: 'center', marginBottom: 16 }}>
@@ -90,14 +84,7 @@ const TabRaspberryPi = ({ isSmallScreen = false }) => {
                     descriptionNumberOfLines={4}
                     description={
                         <Text>
-                            Download the latest image from the remote server.
-
-                            {(!imageUrlQuery.isFetched && showDownloadHint) && (
-                                <Text style={{ fontWeight: 'bold' }}>
-                                    {'\n\n'}
-                                    (Click to download)
-                                </Text>
-                            )}
+                            Click or tap here to download the latest image from the remote server.
 
                             {imageUrlQuery.isError && (
                                 <Text style={{ color: 'red' }}>
@@ -152,13 +139,24 @@ const TabRaspberryPi = ({ isSmallScreen = false }) => {
                     descriptionNumberOfLines={20}
                     description={
                         <Text>
-                            Open a web browser and navigate to the IP address of the Raspberry Pi. The default username is "<Text style={{ fontWeight: 'bold' }}>admin</Text>" and the default password is "<Text style={{ fontWeight: 'bold' }}>admin</Text>".
+                            Click or tap here to navigate to your Raspberry Pi!
                             {'\n\n'}
-                            If you can't find the IP address of the Raspberry Pi, you can access your router's web interface to find it.
+                            The default username is "<Text style={{ fontWeight: 'bold' }}>admin</Text>" and the default password is "<Text style={{ fontWeight: 'bold' }}>admin</Text>".
                         </Text>
                     }
                     left={ props => <List.Icon {...props} icon='numeric-5-circle' />}
-                    right={props => <List.Icon {...props} icon='web' />}
+                    right={props => <List.Icon {...props} icon='arrow-right' />}
+                    onPress={() => Linking.openURL('https://wprint3d-pi.local')}
+                />
+
+                <List.Item
+                    title='Having trouble accessing the web interface?'
+                    titleNumberOfLines={2}
+                    titleStyle={{ fontWeight: 'bold' }}
+                    description="If you are having trouble accessing the web interface, you can try to log into your router's web interface. Then, check if your Raspberry Pi is listed as a device, finally, access its IP address."
+                    descriptionNumberOfLines={8}
+                    left={ props => <List.Icon {...props} icon='alert' color={colors.error} />}
+                    style={{ marginTop: 24 }}
                 />
 
                 <List.Item
