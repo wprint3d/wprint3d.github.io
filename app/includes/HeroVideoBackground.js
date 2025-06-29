@@ -1,25 +1,32 @@
+import { Asset } from 'expo-asset';
 import { useEvent } from 'expo';
-import { useEffect } from 'react';
-import { Platform, StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Image, Platform, StyleSheet, View } from 'react-native';
 import { useTheme } from 'react-native-paper';
 
 const { useVideoPlayer, VideoView } = require('expo-video');
 
-const HeroVideoBackground = () => {
+const HeroVideoBackground = ({ isPosterLoaded = false }) => {
     const theme = useTheme();
 
-    const video = require('../../assets/videos/bg.m4v');
+    const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+    const [videoUri, setVideoUri] = useState(null);
 
-    const player = useVideoPlayer(video, player => {
-        // player.loop = true;
+    const posterImage = require('../../assets/images/video_alt.webp');
+
+    useEffect(() => {
+        (async () => {
+            const asset = Asset.fromModule(require('../../assets/videos/bg.m4v'));
+            await asset.downloadAsync();
+            setVideoUri(asset.uri);
+        })();
+    }, []);
+
+    const player = useVideoPlayer(videoUri, player => {
         player.play();
     });
 
-    const { isPlaying } = useEvent(player, 'playingChange', { isPlaying: player.playing });
-
-    useEffect(() => {
-        console.debug('isPlaying:', isPlaying);
-    }, [isPlaying]);
+    if (!isPosterLoaded) { return null; }
 
     return (
         <View style={{ overflow: 'hidden', top: 0, left: 0, width: '100%', height: '100%', position: 'absolute' }}>
@@ -27,9 +34,26 @@ const HeroVideoBackground = () => {
                 backgroundColor: theme.dark ? 'black' : 'white'
             }]} />
 
+            <Image
+                source={posterImage}
+                style={styles.video}
+            />
+
             {Platform.OS === 'web'
-                ? <video src={video} style={styles.video} autoPlay loop muted playsInline />
-                : <VideoView player={player} style={styles.video} nativeControls={false} />
+                ? <video
+                    src={videoUri}
+                    style={{ ...styles.video, opacity: isVideoLoaded ? 1 : 0 }}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    onLoadedData={() => setIsVideoLoaded(true)}
+                />
+                : (player && <VideoView
+                    player={player}
+                    style={{ ...styles.video, opacity: isVideoLoaded ? 1 : 0 }}
+                    nativeControls={false}
+                />)
             }
         </View>
     );
@@ -44,6 +68,9 @@ const styles = StyleSheet.create({
         zIndex: 1
     },
     video: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
         width: '100%',
         height: '100%',
         objectFit: 'cover',
