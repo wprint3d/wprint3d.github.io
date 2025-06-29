@@ -20,7 +20,7 @@ import Markdown from '@ronradtke/react-native-markdown-display';
 
 import { SnackbarProvider } from 'react-native-paper-snackbar-stack';
 
-const Main = () => {
+const Main = ({ isPosterLoaded = false, isFontLoaded = false }) => {
     const theme = useTheme();
 
     const [ isDialogVisible, setIsDialogVisible ] = useState(false);
@@ -89,6 +89,8 @@ const Main = () => {
         console.debug('windowWidth:', windowWidth);
     }, [windowWidth]);
 
+    if (!isPosterLoaded) { return null; }
+
     return (
         <>
             {/* <Appbar.Header style={{ backgroundColor: theme.colors.elevation.level2 }}>
@@ -97,7 +99,7 @@ const Main = () => {
 
             <ScrollView contentContainerStyle={styles.container}>
                 <View style={styles.hero}>
-                    <HeroVideoBackground />
+                    <HeroVideoBackground isPosterLoaded={isPosterLoaded} />
                     <Text variant='displayMedium' style={styles.title}>
                         WPrint 3D
                     </Text>

@@ -1,6 +1,7 @@
-import React from 'react';
+import { Asset } from 'expo-asset';
+import React, { useEffect, useState } from 'react';
 
-import { StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -19,7 +20,16 @@ import { useFonts } from 'expo-font';
 export default function Index() {
   const queryClient = new QueryClient();
 
-  const [isLoaded] = useFonts({ ...MaterialCommunityIcons.font });
+  const [isFontLoaded] = useFonts({ ...MaterialCommunityIcons.font });
+  const [isPosterLoaded, setIsPosterLoaded] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const posterAsset = Asset.fromModule(require('../assets/images/video_alt.webp'));
+      await posterAsset.downloadAsync();
+      setIsPosterLoaded(true);
+    })();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -27,7 +37,10 @@ export default function Index() {
         <Background>
           <View style={styles.root}>
             <SnackbarProvider maxSnack={3}>
-              {isLoaded && <Main />}
+              <Main
+                isPosterLoaded={isPosterLoaded}
+                isFontLoaded={isFontLoaded}
+              />
             </SnackbarProvider>
           </View>
         </Background>
