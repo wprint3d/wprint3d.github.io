@@ -21,6 +21,16 @@
         border-radius:    1em;
       }
 
+      [data-testid="page-scroll-view"] {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+      }
+
+      [data-testid="page-scroll-view"]::-webkit-scrollbar {
+        height: 0;
+        width: 0;
+      }
+
       /* These styles make the body full-height */
       html,
       body {
