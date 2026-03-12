@@ -35,7 +35,23 @@
       ],
       [
         "expo-video",
-        { "supportsBackgroundPlayback": true }
+        {
+          "supportsBackgroundPlayback": true
+        }
+      ],
+      [
+        "expo-localization",
+        {
+          "supportedLocales": [
+            "en",
+            "es",
+            "fr",
+            "pt",
+            "it",
+            "de",
+            "es-AR"
+          ]
+        }
       ]
     ],
     "experiments": {
