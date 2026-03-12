@@ -197,7 +197,7 @@ const Main = ({ isPosterLoaded = false, isFontLoaded = false }) => {
                 </View>
 
                 <View style={styles.footer}>
-                    <Text style={styles.footerText}>© 2025 - WPrint 3D</Text>
+                    <Text style={styles.footerText}>© 2026 - WPrint 3D</Text>
                 </View>
             </ScrollView>
 
