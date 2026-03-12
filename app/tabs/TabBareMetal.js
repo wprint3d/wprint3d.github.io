@@ -1,15 +1,18 @@
 import { Linking, View } from 'react-native';
 
 import TabWrapper from '../includes/TabWrapper';
+import { useLocalization } from '../includes/LocalizationProvider';
 import { List, Text } from 'react-native-paper';
 import CompatibilityHint from '../includes/CompatibilityHint';
 import ClickableStep from '../includes/ClickableStep';
 
 const TabBareMetal = ({ isSmallScreen = false }) => {
+    const { strings } = useLocalization();
+
     return (
         <TabWrapper isSmallScreen={isSmallScreen}>
             <Text style={{ width: '100%', textAlign: 'center', marginBottom: 16 }}>
-                Compatible with the following operating systems in <Text style={{ fontWeight: 'bold' }}>amd64</Text> and <Text style={{ fontWeight: 'bold' }}>arm64</Text> architectures:
+                {strings.bareMetal.compatibility}
             </Text>
 
             <View style={{ flexGrow: 1, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 16, marginBottom: 16 }}>
@@ -26,20 +29,20 @@ const TabBareMetal = ({ isSmallScreen = false }) => {
 
             <Text style={{ textAlign: 'center', marginBottom: 16 }}>
                 <Text style={{ fontWeight: 'bold' }}>
-                    This installation method is recommended for developers and advanced users.
+                    {strings.bareMetal.recommendedHeadline}
                 </Text>
                 {'\n\n'}
-                The process consists of downloading the source code and compiling it on the target machine. Then, running containers bound to the host's network and storage, allowing to plug and unplug modules and components in real time.
+                {strings.bareMetal.recommendedBody}
                 {'\n\n'}
                 <Text variant="bodySmall" style={{ fontWeight: 'bold' }}>
-                    Click or tap on the steps to keep track of your progress.
+                    {strings.bareMetal.progressHint}
                 </Text>
             </Text>
 
             <ClickableStep
-                title='Follow the installation guide'
+                title={strings.bareMetal.guideTitle}
                 descriptionNumberOfLines={4}
-                description='Download the source code, compile it, and run the containers.'
+                description={strings.bareMetal.guideDescription}
                 right={props => <List.Icon {...props} icon='arrow-right' />}
                 onPress={() => Linking.openURL('https://github.com/wprint3d/wprint3d-core?tab=readme-ov-file#getting-started')}
             />

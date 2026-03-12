@@ -1,10 +1,27 @@
 import { Asset } from 'expo-asset';
-import { useEvent } from 'expo';
 import { useEffect, useState } from 'react';
 import { Image, Platform, StyleSheet, View } from 'react-native';
 import { useTheme } from 'react-native-paper';
 
 const { useVideoPlayer, VideoView } = require('expo-video');
+
+export const getHeroBackgroundContainerStyle = (platform = Platform.OS) => ({
+    overflow: 'hidden',
+    top: 0,
+    left: (
+        platform === 'web'
+            ? '50%'
+            : 0
+    ),
+    width: (
+        platform === 'web'
+            ? '100vw'
+            : '100%'
+    ),
+    height: '100%',
+    position: 'absolute',
+    ...(platform === 'web' ? { transform: 'translateX(-50%)' } : {})
+});
 
 const HeroVideoBackground = ({ isPosterLoaded = false }) => {
     const theme = useTheme();
@@ -29,7 +46,7 @@ const HeroVideoBackground = ({ isPosterLoaded = false }) => {
     if (!isPosterLoaded) { return null; }
 
     return (
-        <View style={{ overflow: 'hidden', top: 0, left: 0, width: '100%', height: '100%', position: 'absolute' }}>
+        <View style={getHeroBackgroundContainerStyle()}>
             <View testID='hero-video-overlay' style={[ styles.overlay, {
                 backgroundColor: theme.dark ? 'black' : 'white'
             }]} />

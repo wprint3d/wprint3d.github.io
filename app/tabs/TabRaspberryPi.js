@@ -1,14 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Linking, Platform, View } from "react-native";
 import { ActivityIndicator, List, Text, useTheme } from "react-native-paper";
 
 import ClickableStep from "../includes/ClickableStep";
+import { useLocalization } from "../includes/LocalizationProvider";
 import TabWrapper    from "../includes/TabWrapper";
 import CompatibilityHint from "../includes/CompatibilityHint";
 
 const TabRaspberryPi = ({ isSmallScreen = false }) => {
     const { colors } = useTheme();
+    const { strings } = useLocalization();
 
     const imageUrlQuery = useQuery({
         enabled: false,
@@ -21,12 +23,12 @@ const TabRaspberryPi = ({ isSmallScreen = false }) => {
 
     const downloadFile = async (url, fileName) => {
         if (Platform.OS === 'web') {
-            const link = document.createElement('a');
+            const link = globalThis.document.createElement('a');
 
             link.href = url;
             link.setAttribute('download', fileName);
 
-            document.body.appendChild(link);
+            globalThis.document.body.appendChild(link);
 
             link.click();
             link.remove();
@@ -56,7 +58,7 @@ const TabRaspberryPi = ({ isSmallScreen = false }) => {
     return (
         <TabWrapper isSmallScreen={isSmallScreen}>
             <Text style={{ width: '100%', textAlign: 'center', marginBottom: 16 }}>
-                Compatible with the following <Text style={{ fontWeight: 'bold' }}>arm64-ready</Text> devices:
+                {strings.raspberryPi.compatibility}
             </Text>
 
             <View style={{ flexGrow: 1, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 16, marginBottom: 16 }}>
@@ -68,28 +70,28 @@ const TabRaspberryPi = ({ isSmallScreen = false }) => {
 
             <Text style={{ textAlign: 'center', marginBottom: 16 }}>
                 <Text style={{ fontWeight: 'bold' }}>
-                    This installation method is recommended for most users.
+                    {strings.raspberryPi.recommendedHeadline}
                 </Text>
                 {'\n\n'}
-                The process consists of downloading a pre-built image and flashing it to an SD card.
+                {strings.raspberryPi.recommendedBody}
                 {'\n\n'}
                 <Text variant="bodySmall" style={{ fontWeight: 'bold' }}>
-                    Click or tap on the steps to keep track of your progress.
+                    {strings.raspberryPi.progressHint}
                 </Text>
             </Text>
 
             <View>
                 <ClickableStep
-                    title='Download the latest release'
+                    title={strings.raspberryPi.downloadTitle}
                     descriptionNumberOfLines={4}
                     description={
                         <Text>
-                            Click or tap here to download the latest image from the remote server.
+                            {strings.raspberryPi.downloadDescription}
 
                             {imageUrlQuery.isError && (
                                 <Text style={{ color: 'red' }}>
                                     {'\n\n'}
-                                    An error occurred while fetching the image URL, please try again later.
+                                    {strings.raspberryPi.downloadError}
                                 </Text>
                             )}
                         </Text>
@@ -110,38 +112,38 @@ const TabRaspberryPi = ({ isSmallScreen = false }) => {
                 />
 
                 <ClickableStep
-                    title='Unpack the ZIP archive'
+                    title={strings.raspberryPi.unpackTitle}
                     descriptionNumberOfLines={4}
-                    description='Unpack the ZIP archive to obtain the image file.'
+                    description={strings.raspberryPi.unpackDescription}
                     left={ props => <List.Icon {...props} icon='numeric-2-circle' />}
                     right={props => <List.Icon {...props} icon='archive' />}
                 />
 
                 <ClickableStep
-                    title='Flash the image to an SD card'
+                    title={strings.raspberryPi.flashTitle}
                     descriptionNumberOfLines={4}
-                    description='Use the official Raspberry Pi Imager to flash the image to an SD card. Select the "Custom" option to flash the image.'
+                    description={strings.raspberryPi.flashDescription}
                     left={ props => <List.Icon {...props} icon='numeric-3-circle' />}
                     right={props => <List.Icon {...props} icon='file-move' />}
                     onPress={() => Linking.openURL('https://www.raspberrypi.com/software/#:~:text=Pi%20OS%20using-,Raspberry%C2%A0Pi%C2%A0Imager,-Raspberry%20Pi%20Imager')}
                 />
 
                 <ClickableStep
-                    title='Boot the Raspberry Pi'
+                    title={strings.raspberryPi.bootTitle}
                     descriptionNumberOfLines={4}
-                    description='Insert the SD card into the Raspberry Pi and power it on. Wait between 5 to 10 minutes for the system to boot for the first time.'
+                    description={strings.raspberryPi.bootDescription}
                     left={ props => <List.Icon {...props} icon='numeric-4-circle' />}
                     right={props => <List.Icon {...props} icon='power' />}
                 />
 
                 <ClickableStep
-                    title='Access the web interface'
+                    title={strings.raspberryPi.accessWebTitle}
                     descriptionNumberOfLines={20}
                     description={
                         <Text>
-                            Click or tap here to navigate to your Raspberry Pi!
+                            {strings.raspberryPi.accessWebLead}
                             {'\n\n'}
-                            The default username is "<Text style={{ fontWeight: 'bold' }}>admin</Text>" and the default password is "<Text style={{ fontWeight: 'bold' }}>admin</Text>".
+                            {strings.raspberryPi.accessWebCredentials}
                         </Text>
                     }
                     left={ props => <List.Icon {...props} icon='numeric-5-circle' />}
@@ -150,10 +152,10 @@ const TabRaspberryPi = ({ isSmallScreen = false }) => {
                 />
 
                 <List.Item
-                    title='Having trouble accessing the web interface?'
+                    title={strings.raspberryPi.troubleTitle}
                     titleNumberOfLines={2}
                     titleStyle={{ fontWeight: 'bold' }}
-                    description="If you are having trouble accessing the web interface, you can try to log into your router's web interface. Then, check if your Raspberry Pi is listed as a device, finally, access its IP address."
+                    description={strings.raspberryPi.troubleDescription}
                     descriptionNumberOfLines={8}
                     left={ props => <List.Icon {...props} icon='alert' color={colors.error} />}
                     style={{ marginTop: 24 }}
@@ -162,9 +164,9 @@ const TabRaspberryPi = ({ isSmallScreen = false }) => {
                 <List.Item
                     title={
                         <Text style={{ whiteSpace: 'normal' }}>
-                            Looking for a more detailed guide? {' '}
+                            {strings.raspberryPi.detailedGuideLead}{' '}
                             <Text style={{ textDecorationLine: 'underline' }} onPress={() => Linking.openURL('https://github.com/wprint3d/wprint3dos-pi-gen?tab=readme-ov-file#installation')}>
-                                Check out the full documentation!
+                                {strings.raspberryPi.detailedGuideLink}
                             </Text>
                         </Text>
                     }

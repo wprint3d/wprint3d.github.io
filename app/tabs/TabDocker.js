@@ -9,11 +9,13 @@ import { useSnackbar } from "react-native-paper-snackbar-stack";
 import { getBaseOs } from 'react-native-device-info';
 
 import ClickableStep from "../includes/ClickableStep";
+import { useLocalization } from "../includes/LocalizationProvider";
 import TabWrapper    from "../includes/TabWrapper";
 import CompatibilityHint from "../includes/CompatibilityHint";
 
 const TabDocker = ({ isSmallScreen = false }) => {
     const { colors } = useTheme();
+    const { strings } = useLocalization();
 
     const { enqueueSnackbar } = useSnackbar();
 
@@ -28,7 +30,7 @@ const TabDocker = ({ isSmallScreen = false }) => {
         setIsCopied(true);
 
         enqueueSnackbar({
-            message: 'Copied to clipboard!',
+            message: strings.docker.copiedToClipboard,
             duration: 1500,
             variant: 'success'
         });
@@ -37,9 +39,9 @@ const TabDocker = ({ isSmallScreen = false }) => {
     useEffect(() => {
         if (!isCopied) { return; }
 
-        const timeout = setTimeout(() => setIsCopied(false), 1000);
+        const timeout = globalThis.setTimeout(() => setIsCopied(false), 1000);
 
-        return () => clearTimeout(timeout);
+        return () => globalThis.clearTimeout(timeout);
     }, [isCopied]);
 
     useEffect(() => {
@@ -53,7 +55,7 @@ const TabDocker = ({ isSmallScreen = false }) => {
     return (
         <TabWrapper isSmallScreen={isSmallScreen}>
             <Text style={{ width: '100%', textAlign: 'center', marginBottom: 16 }}>
-                Compatible with the following operating systems in <Text style={{ fontWeight: 'bold' }}>amd64</Text> and <Text style={{ fontWeight: 'bold' }}>arm64</Text> architectures:
+                {strings.docker.compatibility}
             </Text>
 
             <View style={{ flexGrow: 1, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 16, marginBottom: 16 }}>
@@ -70,22 +72,22 @@ const TabDocker = ({ isSmallScreen = false }) => {
 
             <Text style={{ textAlign: 'center', marginBottom: 16 }}>
                 <Text style={{ fontWeight: 'bold' }}>
-                    This installation method is recommended for users that want to keep using the host device for other purposes.
+                    {strings.docker.recommendedHeadline}
                 </Text>
                 {'\n\n'}
-                The process consists of downloading the pre-built images and running them in Docker containers on the host device.
+                {strings.docker.recommendedBody}
                 {'\n\n'}
                 <Text variant="bodySmall" style={{ fontWeight: 'bold' }}>
-                    Click or tap on the steps to keep track of your progress.
+                    {strings.docker.progressHint}
                 </Text>
             </Text>
 
             <View>
                 {baseOs.includes('Windows') && (
                     <ClickableStep
-                        title='Planning on using WSL 2?'
+                        title={strings.docker.windowsSetupTitle}
                         descriptionNumberOfLines={4}
-                        description='Addiontal setup is required, click or tap on this step to learn more.'
+                        description={strings.docker.windowsSetupDescription}
                         left={ props => <List.Icon {...props} icon='alert' color="orange" />}
                         right={props => <List.Icon {...props} icon='cog' />}
                         onPress={() => Linking.openURL('https://github.com/wprint3d/wprint3d-core?tab=readme-ov-file#preparing-your-windows-host')}
@@ -93,35 +95,35 @@ const TabDocker = ({ isSmallScreen = false }) => {
                 )}
 
                 <ClickableStep
-                    title='Connect to the target machine'
+                    title={strings.docker.connectTitle}
                     descriptionNumberOfLines={4}
-                    description='Connect to the terminal of the target machine.'
+                    description={strings.docker.connectDescription}
                     left={ props => <List.Icon {...props} icon='numeric-1-circle' />}
                     right={props => <List.Icon {...props} icon='console' />}
                 />
 
                 <ClickableStep
-                    title='Install the Docker engine'
+                    title={strings.docker.installEngineTitle}
                     descriptionNumberOfLines={4}
-                    description='Install the Docker engine on the target machine.'
+                    description={strings.docker.installEngineDescription}
                     left={ props => <List.Icon {...props} icon='numeric-2-circle' />}
                     right={props => <List.Icon {...props} icon='arrow-right' />}
                     onPress={() => Linking.openURL('https://docs.docker.com/engine/install/')}
                 />
 
                 <ClickableStep
-                    title='Follow the post-installation steps'
+                    title={strings.docker.postInstallTitle}
                     descriptionNumberOfLines={4}
-                    description='Run the post-installation steps for the Docker engine.'
+                    description={strings.docker.postInstallDescription}
                     left={ props => <List.Icon {...props} icon='numeric-3-circle' />}
                     right={props => <List.Icon {...props} icon='arrow-right' />}
                     onPress={() => Linking.openURL('https://docs.docker.com/engine/install/linux-postinstall/')}
                 />
 
                 <ClickableStep
-                    title='Install the latest release'
+                    title={strings.docker.installReleaseTitle}
                     descriptionNumberOfLines={4}
-                    description='Copy the command below and run it in the terminal of the target machine.'
+                    description={strings.docker.installReleaseDescription}
                     left={ props => <List.Icon {...props} icon='numeric-4-circle' />}
                     right={props => <List.Icon {...props} icon='bash' />}
                 />
@@ -142,9 +144,9 @@ const TabDocker = ({ isSmallScreen = false }) => {
                 />
 
                 <ClickableStep
-                    title='Access the web interface'
+                    title={strings.docker.accessWebTitle}
                     descriptionNumberOfLines={4}
-                    description='Point your browser to the IP address of the target machine.'
+                    description={strings.docker.accessWebDescription}
                     left={ props => <List.Icon {...props} icon='numeric-5-circle' />}
                     right={props => <List.Icon {...props} icon='web' />}
                     style={{ marginTop: 16 }}
@@ -152,9 +154,9 @@ const TabDocker = ({ isSmallScreen = false }) => {
 
                 {baseOs.includes('Windows') && (
                     <ClickableStep
-                        title='On WSL 2?'
+                        title={strings.docker.wslNextStepsTitle}
                         descriptionNumberOfLines={4}
-                        description='Additional steps are required to enable USB plug and play. Please click or tap on this step to learn more.'
+                        description={strings.docker.wslNextStepsDescription}
                         left={ props => <List.Icon {...props} icon='numeric-6-circle' color="orange" />}
                         right={props => <List.Icon {...props} icon='usb' />}
                         onPress={() => Linking.openURL('https://github.com/wprint3d/wprint3d-core?tab=readme-ov-file#next-steps-on-your-windows-host')}
@@ -162,13 +164,13 @@ const TabDocker = ({ isSmallScreen = false }) => {
                 )}
 
                 <List.Item
-                    title='Having trouble with the built-in updater?'
+                    title={strings.docker.updaterWarningTitle}
                     titleNumberOfLines={2}
                     description={
                         <Text>
-                            If you are having trouble running the integrated updater, you can simply re-run the command above to update the application!
+                            {strings.docker.updaterWarningBody}
                             {'\n\n'}
-                            This action won't affect your data or settings.
+                            {strings.docker.updaterWarningFootnote}
                         </Text>
                     }
                     descriptionNumberOfLines={8}
