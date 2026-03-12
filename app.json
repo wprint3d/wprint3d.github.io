@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "wprint3d.github.io",
-    "slug": "wprint3d.github.io",
+    "slug": "wprint3d-github-io",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -52,7 +52,9 @@
             "es-AR"
           ]
         }
-      ]
+      ],
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
