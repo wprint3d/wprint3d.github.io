@@ -1,6 +1,7 @@
 import { ScrollView, Linking, StyleSheet, View, Dimensions, useWindowDimensions } from 'react-native';
 import { Text, Button, Card, Title, Paragraph, useTheme, ActivityIndicator } from 'react-native-paper';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'expo-router';
 
 import { Image } from 'expo-image';
 
@@ -19,13 +20,16 @@ import { TabsProvider, Tabs, TabScreen } from 'react-native-paper-tabs';
 import Markdown from '@ronradtke/react-native-markdown-display';
 
 import { SnackbarProvider } from 'react-native-paper-snackbar-stack';
+import { isPluginSystemEnabled } from '../config/featureFlags';
 
 const Main = ({ isPosterLoaded = false, isFontLoaded = false }) => {
     const theme = useTheme();
+    const router = useRouter();
 
     const [ isDialogVisible, setIsDialogVisible ] = useState(false);
 
     const windowWidth = useWindowDimensions().width;
+    const pluginSystemEnabled = isPluginSystemEnabled();
 
     const IS_TABLET         = windowWidth <= 1024;
     const IS_SMALL_SCREEN   = windowWidth <= 768;
@@ -109,6 +113,11 @@ const Main = ({ isPosterLoaded = false, isFontLoaded = false }) => {
                     <Button mode="contained" onPress={() => setIsDialogVisible(true)}>
                         Get started
                     </Button>
+                    {pluginSystemEnabled && (
+                        <Button mode="outlined" onPress={() => router.push('/plugins')} style={{ marginTop: 8 }}>
+                            Browse plugins
+                        </Button>
+                    )}
                     <Text style={{ width: '100%', textAlign: 'center', marginVertical: 16 }}>
                         Compatible with:
                     </Text>
