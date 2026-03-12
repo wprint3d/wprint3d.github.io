@@ -84,7 +84,7 @@ const Main = ({ isPosterLoaded = false, isFontLoaded = false }) => {
                 <Appbar.Content title="WPrint 3D" />
             </Appbar.Header> */}
 
-            <ScrollView contentContainerStyle={styles.container}>
+            <ScrollView testID="page-scroll-view" contentContainerStyle={styles.container}>
                 <View style={styles.hero}>
                     <LanguagePicker style={[styles.languagePicker, getResponsiveLanguagePickerStyle({ isSmallScreen: IS_SMALL_SCREEN, isOverlay: true })]} />
                     <HeroVideoBackground isPosterLoaded={isPosterLoaded} />

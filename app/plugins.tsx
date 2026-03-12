@@ -66,7 +66,7 @@ const PluginMarketplace = () => {
 
   return (
     <Background>
-      <ScrollView contentContainerStyle={styles.container}>
+      <ScrollView testID="page-scroll-view" contentContainerStyle={styles.container}>
         <View style={styles.hero}>
           <LanguagePicker style={[styles.languagePicker, getResponsiveLanguagePickerStyle({ isSmallScreen })]} />
           <Text variant="displaySmall" style={{ textAlign: "center", marginBottom: 12 }}>
