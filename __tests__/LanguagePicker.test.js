@@ -59,6 +59,16 @@ jest.mock("react-native-paper", () => {
 });
 
 describe("LanguagePicker", () => {
+  const renderLanguagePicker = async () => {
+    let tree;
+
+    await renderer.act(async () => {
+      tree = renderer.create(<LanguagePicker />);
+    });
+
+    return tree;
+  };
+
   it("centers the picker horizontally on small displays", () => {
     expect(getResponsiveLanguagePickerStyle({ isSmallScreen: true })).toEqual({
       alignSelf: "center",
@@ -73,18 +83,26 @@ describe("LanguagePicker", () => {
     });
   });
 
-  it('does not render a separate "Language" label above the picker', () => {
-    const tree = renderer.create(<LanguagePicker />).toJSON();
-    const output = JSON.stringify(tree);
+  it('does not render a separate "Language" label above the picker', async () => {
+    const tree = await renderLanguagePicker();
+    const output = JSON.stringify(tree.toJSON());
 
     expect(output).not.toContain("Language");
     expect(output).toContain("Auto-detect");
+
+    await renderer.act(async () => {
+      tree.unmount();
+    });
   });
 
-  it("sizes the picker button to the selected option instead of forcing a minimum width", () => {
-    const tree = renderer.create(<LanguagePicker />);
+  it("sizes the picker button to the selected option instead of forcing a minimum width", async () => {
+    const tree = await renderLanguagePicker();
     const button = tree.root.findByProps({ testID: "language-picker-button" });
 
     expect(button.props.style).not.toMatchObject({ minWidth: 210 });
+
+    await renderer.act(async () => {
+      tree.unmount();
+    });
   });
 });
