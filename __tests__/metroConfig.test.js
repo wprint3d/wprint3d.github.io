@@ -19,4 +19,9 @@ describe("metro config", () => {
     expect(metroConfigSource).toContain('filter((ext) => ext !== "svg")');
     expect(metroConfigSource).toContain('[...resolver.sourceExts, "svg"]');
   });
+
+  it("aliases use-latest-callback to the local compatibility shim", () => {
+    expect(metroConfigSource).toContain('moduleName === "use-latest-callback"');
+    expect(metroConfigSource).toContain('shims/useLatestCallback.js');
+  });
 });

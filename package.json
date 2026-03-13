@@ -74,7 +74,10 @@
   },
   "pnpm": {
     "overrides": {
-      "use-latest-callback": "0.2.3"
+      "use-latest-callback": "0.2.3",
+      "@react-navigation/core>use-latest-callback": "0.2.3",
+      "@react-navigation/elements>use-latest-callback": "0.2.3",
+      "@react-navigation/native-stack>use-latest-callback": "0.2.3"
     }
   },
   "private": true
