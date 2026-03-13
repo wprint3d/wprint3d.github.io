@@ -122,11 +122,11 @@ const Main = ({ isPosterLoaded = false, isFontLoaded = false }) => {
                         />
                     </View>
 
-                    <Text style={{
-                        fontSize: 12,
-                        marginTop: 16,
-                        color: (theme.dark ? '#a9a9a9' : '#696969')
-                    }}>
+                    <Text style={[
+                        styles.heroFootnote,
+                        IS_SMALL_SCREEN && styles.heroFootnoteSmall,
+                        { color: (theme.dark ? '#a9a9a9' : '#696969') }
+                    ]}>
                         {strings.main.windowsExperimental}
                     </Text>
                 </View>
@@ -263,6 +263,18 @@ const styles = StyleSheet.create({
     paragraph: {
         textAlign: 'center',
         marginBottom: 16,
+    },
+    heroFootnote: {
+        fontSize: 12,
+        lineHeight: 16,
+        marginTop: 16,
+        maxWidth: 420,
+        textAlign: 'center',
+    },
+    heroFootnoteSmall: {
+        fontSize: 11,
+        lineHeight: 15,
+        maxWidth: 280,
     },
     card: {
         marginVertical: 8,
