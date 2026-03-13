@@ -165,7 +165,7 @@ export const translations = {
       getStarted: "Get started",
       browsePlugins: "Browse plugins",
       compatibleWith: "Compatible with:",
-      windowsExperimental: "* Windows support is experimental and requires WSL 2",
+      windowsExperimental: "* Windows support is experimental and requires WSL\u00A02",
       gettingStartedTitle: "Getting started",
       gettingStartedBody: "To get started, follow the instructions associated with your platform of choice.",
       tabs: {
@@ -282,7 +282,7 @@ export const translations = {
       getStarted: "Primeros pasos",
       browsePlugins: "Explorar plugins",
       compatibleWith: "Compatible con:",
-      windowsExperimental: "* La compatibilidad con Windows es experimental y requiere WSL 2",
+      windowsExperimental: "* La compatibilidad con Windows es experimental y requiere WSL\u00A02",
       gettingStartedTitle: "Primeros pasos",
       gettingStartedBody: "Para empezar, sigue las instrucciones correspondientes a la plataforma que elijas.",
       tabs: {
@@ -399,7 +399,7 @@ export const translations = {
       getStarted: "Commencer",
       browsePlugins: "Parcourir les plugins",
       compatibleWith: "Compatible avec :",
-      windowsExperimental: "* La prise en charge de Windows est expérimentale et nécessite WSL 2",
+      windowsExperimental: "* La prise en charge de Windows est expérimentale et nécessite WSL\u00A02",
       gettingStartedTitle: "Premiers pas",
       gettingStartedBody: "Pour commencer, suivez les instructions correspondant à la plateforme de votre choix.",
       tabs: {
@@ -516,7 +516,7 @@ export const translations = {
       getStarted: "Começar",
       browsePlugins: "Explorar plugins",
       compatibleWith: "Compatível com:",
-      windowsExperimental: "* O suporte ao Windows é experimental e requer WSL 2",
+      windowsExperimental: "* O suporte ao Windows é experimental e requer WSL\u00A02",
       gettingStartedTitle: "Primeiros passos",
       gettingStartedBody: "Para começar, siga as instruções associadas à plataforma da sua escolha.",
       tabs: {
@@ -633,7 +633,7 @@ export const translations = {
       getStarted: "Inizia",
       browsePlugins: "Esplora i plugin",
       compatibleWith: "Compatibile con:",
-      windowsExperimental: "* Il supporto per Windows è sperimentale e richiede WSL 2",
+      windowsExperimental: "* Il supporto per Windows è sperimentale e richiede WSL\u00A02",
       gettingStartedTitle: "Primi passi",
       gettingStartedBody: "Per iniziare, segui le istruzioni associate alla piattaforma che preferisci.",
       tabs: {
@@ -750,7 +750,7 @@ export const translations = {
       getStarted: "Loslegen",
       browsePlugins: "Plugins entdecken",
       compatibleWith: "Kompatibel mit:",
-      windowsExperimental: "* Die Windows-Unterstützung ist experimentell und erfordert WSL 2",
+      windowsExperimental: "* Die Windows-Unterstützung ist experimentell und erfordert WSL\u00A02",
       gettingStartedTitle: "Erste Schritte",
       gettingStartedBody: "Folgen Sie zum Einstieg den Anweisungen für die Plattform Ihrer Wahl.",
       tabs: {
@@ -867,7 +867,7 @@ export const translations = {
       getStarted: "Primeros pasos",
       browsePlugins: "Explorá plugins",
       compatibleWith: "Compatible con:",
-      windowsExperimental: "* La compatibilidad con Windows es experimental y requiere WSL 2",
+      windowsExperimental: "* La compatibilidad con Windows es experimental y requiere WSL\u00A02",
       gettingStartedTitle: "Primeros pasos",
       gettingStartedBody: "Para empezar, seguí las instrucciones correspondientes a la plataforma que elijas.",
       tabs: {
