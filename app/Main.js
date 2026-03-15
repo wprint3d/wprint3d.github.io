@@ -1,7 +1,6 @@
 import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Text, Button, Card, Title, Paragraph, useTheme } from 'react-native-paper';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'expo-router';
 
 import { Image } from 'expo-image';
 
@@ -12,6 +11,7 @@ import { useLocalization }  from './includes/LocalizationProvider';
 
 import BackButton           from './includes/BackButton';
 import HeroVideoBackground  from './includes/HeroVideoBackground';
+import PluginMarketplaceContent from './includes/PluginMarketplaceContent';
 import SimpleDialog         from './includes/SimpleDialog';
 
 import TabBareMetal         from './tabs/TabBareMetal';
@@ -27,10 +27,10 @@ import { isPluginSystemEnabled } from '../config/featureFlags';
 
 const Main = ({ isPosterLoaded = false, isFontLoaded = false }) => {
     const theme = useTheme();
-    const router = useRouter();
     const { strings } = useLocalization();
 
     const [ isDialogVisible, setIsDialogVisible ] = useState(false);
+    const [ isPluginDialogVisible, setIsPluginDialogVisible ] = useState(false);
 
     const windowWidth = useWindowDimensions().width;
     const pluginSystemEnabled = isPluginSystemEnabled();
@@ -87,7 +87,9 @@ const Main = ({ isPosterLoaded = false, isFontLoaded = false }) => {
             <ScrollView testID="page-scroll-view" contentContainerStyle={styles.container}>
                 <View style={styles.hero}>
                     <LanguagePicker style={[styles.languagePicker, getResponsiveLanguagePickerStyle({ isSmallScreen: IS_SMALL_SCREEN, isOverlay: true })]} />
-                    <HeroVideoBackground isPosterLoaded={isPosterLoaded} />
+                    {!isPluginDialogVisible && (
+                        <HeroVideoBackground isPosterLoaded={isPosterLoaded} />
+                    )}
                     <Text variant='displayMedium' style={styles.title}>
                         WPrint 3D
                     </Text>
@@ -98,7 +100,7 @@ const Main = ({ isPosterLoaded = false, isFontLoaded = false }) => {
                         {strings.main.getStarted}
                     </Button>
                     {pluginSystemEnabled && (
-                        <Button mode="outlined" onPress={() => router.push('/plugins')} style={{ marginTop: 8 }}>
+                        <Button mode="outlined" onPress={() => setIsPluginDialogVisible(true)} style={{ marginTop: 8 }}>
                             {strings.main.browsePlugins}
                         </Button>
                     )}
@@ -238,6 +240,41 @@ const Main = ({ isPosterLoaded = false, isFontLoaded = false }) => {
                     </SnackbarProvider>
                 }
             />
+
+            <SimpleDialog
+                title={strings.plugins.heroTitle}
+                visible={isPluginDialogVisible}
+                setVisible={setIsPluginDialogVisible}
+                onDismiss={() => setIsPluginDialogVisible(false)}
+                left={IS_SMALL_SCREEN && <BackButton onPress={() => setIsPluginDialogVisible(false)} />}
+                style={
+                    IS_SMALL_SCREEN
+                        ? {
+                            position: 'absolute',
+                            margin: 0,
+                            borderRadius: 0,
+                            top: 0,
+                            padding: 0,
+                            width: '100%',
+                            height: '100%',
+                            maxWidth: '100%',
+                            maxHeight: '100%',
+                        }
+                        : {
+                            maxWidth: 1040,
+                        }
+                }
+                titleStyle={IS_SMALL_SCREEN && { marginHorizontal: 8 }}
+                content={(
+                    <ScrollView contentContainerStyle={styles.pluginDialogContent}>
+                        <PluginMarketplaceContent
+                            isSmallScreen={IS_SMALL_SCREEN}
+                            showTitle={false}
+                            showLanguagePicker={false}
+                        />
+                    </ScrollView>
+                )}
+            />
         </>
     )
 }
@@ -263,6 +300,9 @@ const styles = StyleSheet.create({
     paragraph: {
         textAlign: 'center',
         marginBottom: 16,
+    },
+    pluginDialogContent: {
+        paddingBottom: 8,
     },
     heroFootnote: {
         fontSize: 12,
