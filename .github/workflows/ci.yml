@@ -35,10 +35,22 @@ jobs:
         name: Install dependencies
         run: pnpm install
       -
+        name: Print plugin flag value for export
+        env:
+          EXPO_PUBLIC_PLUGIN_SYSTEM_ENABLED: ${{ vars.EXPO_PUBLIC_PLUGIN_SYSTEM_ENABLED }}
+        run: echo "EXPO_PUBLIC_PLUGIN_SYSTEM_ENABLED=${EXPO_PUBLIC_PLUGIN_SYSTEM_ENABLED:-<unset>}"
+      -
         name: Compile the bundle
         env:
           EXPO_PUBLIC_PLUGIN_SYSTEM_ENABLED: ${{ vars.EXPO_PUBLIC_PLUGIN_SYSTEM_ENABLED }}
         run: pnpm exec expo export --platform web
+      -
+        name: Verify plugin flag was inlined into the web bundle
+        run: |
+          if rg -n 'process\.env\.EXPO_PUBLIC_PLUGIN_SYSTEM_ENABLED|process\.env\["EXPO_PUBLIC_PLUGIN_SYSTEM_ENABLED"\]|process\.env\[\"EXPO_PUBLIC_PLUGIN_SYSTEM_ENABLED\"\]' dist/_expo/static/js/web; then
+            echo "The plugin feature flag was not inlined into the exported web bundle."
+            exit 1
+          fi
       -
         name: Copy extra assets to the dist folder
         run: cp -fv ./install ./dist
