@@ -20,6 +20,7 @@ const PluginMarketplace = () => {
   const pluginSystemEnabled = isPluginSystemEnabled();
   const { strings } = useLocalization();
   const isSmallScreen = useWindowDimensions().width <= 768;
+  const goHome = () => router.replace("/");
 
   const registryQuery = useQuery({
     queryKey: ["pluginRegistryPage"],
@@ -55,7 +56,7 @@ const PluginMarketplace = () => {
           <Text style={{ textAlign: "center", marginBottom: 16, maxWidth: 560 }}>
             {strings.plugins.disabledDescription}
           </Text>
-          <Button mode="contained" onPress={() => router.replace("/")}>
+          <Button mode="contained" onPress={goHome}>
             {strings.plugins.backToHome}
           </Button>
         </View>
@@ -66,6 +67,11 @@ const PluginMarketplace = () => {
   return (
     <Background>
       <ScrollView testID="page-scroll-view" contentContainerStyle={styles.container}>
+        <View style={styles.heroNav}>
+          <Button mode="text" onPress={goHome}>
+            {strings.plugins.backToHome}
+          </Button>
+        </View>
         <View style={styles.hero}>
           <LanguagePicker style={[styles.languagePicker, getResponsiveLanguagePickerStyle({ isSmallScreen })]} />
           <Text variant="displaySmall" style={{ textAlign: "center", marginBottom: 12 }}>
@@ -158,6 +164,11 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     gap: 8,
     width: "100%",
+  },
+  heroNav: {
+    alignSelf: "stretch",
+    alignItems: "flex-start",
+    marginBottom: 8,
   },
   disabledState: {
     flex: 1,
