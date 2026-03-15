@@ -1,6 +1,4 @@
-const envFlag = (key, fallback = false) => {
-  const value = process.env[key];
-
+const envFlag = (value, fallback = false) => {
   if (typeof value !== "string") {
     return fallback;
   }
@@ -19,7 +17,7 @@ const envFlag = (key, fallback = false) => {
 };
 
 export const featureFlags = Object.freeze({
-  pluginSystem: envFlag("EXPO_PUBLIC_PLUGIN_SYSTEM_ENABLED", false),
+  pluginSystem: envFlag(process.env.EXPO_PUBLIC_PLUGIN_SYSTEM_ENABLED, false),
 });
 
 export function isPluginSystemEnabled() {

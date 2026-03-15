@@ -1,5 +1,8 @@
 /* eslint-env jest */
 
+import fs from "node:fs";
+import path from "node:path";
+
 import { featureFlags, isPluginSystemEnabled } from "../config/featureFlags";
 
 describe("featureFlags", () => {
@@ -27,5 +30,15 @@ describe("featureFlags", () => {
 
     expect(envFlags.pluginSystem).toBe(true);
     expect(envEnabled()).toBe(true);
+  });
+
+  it("references the Expo public plugin flag directly so the web bundle can inline it", () => {
+    const source = fs.readFileSync(
+      path.join(process.cwd(), "config", "featureFlags.js"),
+      "utf8"
+    );
+
+    expect(source).toContain("process.env.EXPO_PUBLIC_PLUGIN_SYSTEM_ENABLED");
+    expect(source).not.toContain("process.env[key]");
   });
 });
