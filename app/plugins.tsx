@@ -10,8 +10,7 @@ import { getResponsiveLanguagePickerStyle } from "./includes/LanguagePicker";
 import { LocalizationProvider, useLocalization } from "./includes/LocalizationProvider";
 import Theme from "./includes/Theme";
 import { isPluginSystemEnabled } from "../config/featureFlags";
-
-const REGISTRY_INDEX_URL = "https://raw.githubusercontent.com/wprint3d/plugin-registry/main/index.json";
+import { normalizeRegistryPayload, pluginRegistryConfig } from "../config/pluginRegistry";
 
 const queryClient = new QueryClient();
 
@@ -26,10 +25,10 @@ const PluginMarketplace = () => {
     queryKey: ["pluginRegistryPage"],
     enabled: pluginSystemEnabled,
     queryFn: async () => {
-      const response = await fetch(REGISTRY_INDEX_URL);
+      const response = await fetch(pluginRegistryConfig.indexUrl);
       const payload = await response.json();
 
-      return Array.isArray(payload?.plugins) ? payload.plugins : payload;
+      return normalizeRegistryPayload(payload);
     }
   });
 
@@ -76,10 +75,10 @@ const PluginMarketplace = () => {
             {strings.plugins.heroDescription}
           </Text>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12, justifyContent: "center" }}>
-            <Button mode="contained" onPress={() => Linking.openURL("https://github.com/wprint3d/plugin-registry")}>
+            <Button mode="contained" onPress={() => Linking.openURL(pluginRegistryConfig.repositoryUrl)}>
               {strings.plugins.officialRegistry}
             </Button>
-            <Button mode="outlined" onPress={() => Linking.openURL("https://github.com/wprint3d/wprint3d-core/tree/main/examples/plugins")}>
+            <Button mode="outlined" onPress={() => Linking.openURL(pluginRegistryConfig.examplesUrl)}>
               {strings.plugins.examplePlugin}
             </Button>
           </View>
