@@ -1,32 +1,307 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-if ! docker --version > /dev/null 2>&1; then
-    echo "Docker is not installed. Please install Docker and try again.";
+set -euo pipefail
 
-    exit 1;
-fi;
+TARGET_PATH="${HOME}/.wprint3d"
+LOCAL_BIN_DIR="${HOME}/.local/bin"
+CONTAINERS_CONFIG_DIR="${HOME}/.config/containers"
+CONTAINERS_CONFIG_FILE="${CONTAINERS_CONFIG_DIR}/containers.conf"
 
-TEMP_FILE=$(mktemp --suffix=-wprint3d-runner);
+log() {
+    printf '%s\n' "$*"
+}
 
-DEFAULT_BRANCH=$(curl -sfL -H "Accept: application/vnd.github+json" -H "X-GitHub-Api-Version: 2022-11-28" https://api.github.com/repos/wprint3d/wprint3d-core | grep default | sed 's/.*: "//' | sed 's/".*//');
+has_command() {
+    command -v "$1" >/dev/null 2>&1
+}
 
-TARGET_PATH="${HOME}/.wprint3d";
+run_as_root() {
+    if has_command sudo; then
+        sudo "$@"
+    else
+        "$@"
+    fi
+}
 
-if [[ ! -d $TARGET_PATH ]]; then
-    mkdir -p $TARGET_PATH;
-fi;
+install_with_apt_get() {
+    run_as_root apt-get update
+    run_as_root apt-get install -y podman podman-compose
 
-cd $TARGET_PATH;
+    if ! has_command docker; then
+        if ! run_as_root apt-get install -y podman-docker; then
+            log "The podman-docker package is unavailable, falling back to a local Docker wrapper."
+        fi
+    fi
+}
 
-curl -sfL https://raw.githubusercontent.com/wprint3d/wprint3d-core/refs/heads/${DEFAULT_BRANCH}/run.sh > $TEMP_FILE;
+install_compose_with_apt_get() {
+    run_as_root apt-get update
+    run_as_root apt-get install -y podman-compose
+}
 
-if [[ -f $TEMP_FILE ]] && [[ -s $TEMP_FILE ]]; then
-    chmod +x $TEMP_FILE;
+install_with_dnf() {
+    run_as_root dnf install -y podman podman-compose
 
-    echo "Installing WPrint 3D...";
-    mv -fv $TEMP_FILE wprint3d-run.sh;
-fi;
+    if ! has_command docker; then
+        if ! run_as_root dnf install -y podman-docker; then
+            log "The podman-docker package is unavailable, falling back to a local Docker wrapper."
+        fi
+    fi
+}
 
-bash wprint3d-run.sh;
+install_compose_with_dnf() {
+    run_as_root dnf install -y podman-compose
+}
 
-exit 0;
+install_with_yum() {
+    run_as_root yum install -y podman podman-compose
+
+    if ! has_command docker; then
+        if ! run_as_root yum install -y podman-docker; then
+            log "The podman-docker package is unavailable, falling back to a local Docker wrapper."
+        fi
+    fi
+}
+
+install_compose_with_yum() {
+    run_as_root yum install -y podman-compose
+}
+
+install_with_zypper() {
+    run_as_root zypper --non-interactive install podman podman-compose
+
+    if ! has_command docker; then
+        if ! run_as_root zypper --non-interactive install podman-docker; then
+            log "The podman-docker package is unavailable, falling back to a local Docker wrapper."
+        fi
+    fi
+}
+
+install_compose_with_zypper() {
+    run_as_root zypper --non-interactive install podman-compose
+}
+
+install_with_pacman() {
+    run_as_root pacman -Sy --noconfirm podman podman-compose
+
+    if ! has_command docker; then
+        if ! run_as_root pacman -Sy --noconfirm podman-docker; then
+            log "The podman-docker package is unavailable, falling back to a local Docker wrapper."
+        fi
+    fi
+}
+
+install_compose_with_pacman() {
+    run_as_root pacman -Sy --noconfirm podman-compose
+}
+
+install_podman_dependencies() {
+    if has_command apt-get; then
+        install_with_apt_get
+
+        return 0
+    fi
+
+    if has_command dnf; then
+        install_with_dnf
+
+        return 0
+    fi
+
+    if has_command yum; then
+        install_with_yum
+
+        return 0
+    fi
+
+    if has_command zypper; then
+        install_with_zypper
+
+        return 0
+    fi
+
+    if has_command pacman; then
+        install_with_pacman
+
+        return 0
+    fi
+
+    log "Unable to find a supported package manager to install Podman automatically."
+    log "Please install Podman, podman-compose, and a Docker-compatible wrapper, then run this script again."
+
+    exit 1
+}
+
+install_podman_compose_provider() {
+    if has_command apt-get; then
+        install_compose_with_apt_get
+
+        return 0
+    fi
+
+    if has_command dnf; then
+        install_compose_with_dnf
+
+        return 0
+    fi
+
+    if has_command yum; then
+        install_compose_with_yum
+
+        return 0
+    fi
+
+    if has_command zypper; then
+        install_compose_with_zypper
+
+        return 0
+    fi
+
+    if has_command pacman; then
+        install_compose_with_pacman
+
+        return 0
+    fi
+
+    log "Unable to find a supported package manager to install podman-compose automatically."
+    log "Please install podman-compose, then run this script again."
+
+    exit 1
+}
+
+ensure_podman() {
+    if has_command podman; then
+        return 0
+    fi
+
+    log "Podman is not installed. Installing the required container tooling..."
+    install_podman_dependencies
+
+    if ! has_command podman; then
+        log "Podman could not be found after installation. Please install it manually and try again."
+
+        exit 1
+    fi
+}
+
+ensure_podman_compose() {
+    if has_command podman-compose; then
+        return 0
+    fi
+
+    log "podman-compose is not installed. Installing the compose provider..."
+    install_podman_compose_provider
+
+    if ! has_command podman-compose; then
+        log "podman-compose could not be found after installation. Please install it manually and try again."
+
+        exit 1
+    fi
+}
+
+configure_compose_provider() {
+    if ! has_command podman-compose; then
+        return 0
+    fi
+
+    mkdir -p "$CONTAINERS_CONFIG_DIR"
+
+    if [[ ! -f "$CONTAINERS_CONFIG_FILE" ]]; then
+        cat > "$CONTAINERS_CONFIG_FILE" <<'EOF'
+[engine]
+compose_provider = "podman-compose"
+EOF
+
+        return 0
+    fi
+
+    if grep -q 'compose_provider *= *"podman-compose"' "$CONTAINERS_CONFIG_FILE"; then
+        return 0
+    fi
+
+    printf '\n[engine]\ncompose_provider = "podman-compose"\n' >> "$CONTAINERS_CONFIG_FILE"
+}
+
+ensure_docker_compatibility() {
+    if has_command docker; then
+        return 0
+    fi
+
+    mkdir -p "$LOCAL_BIN_DIR"
+
+    cat > "${LOCAL_BIN_DIR}/docker" <<'EOF'
+#!/usr/bin/env bash
+exec podman "$@"
+EOF
+
+    chmod +x "${LOCAL_BIN_DIR}/docker"
+    export PATH="${LOCAL_BIN_DIR}:${PATH}"
+
+    log "Configured a Docker-compatible wrapper at ${LOCAL_BIN_DIR}/docker."
+}
+
+download_runner() {
+    local temp_file
+    local default_branch
+    local runtime_support_file
+
+    local runtime_support_files=(
+        internal/container-runtime.sh
+    )
+
+    temp_file="$(mktemp --suffix=-wprint3d-runner)"
+
+    default_branch="$(
+        curl -sfL \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/wprint3d/wprint3d-core \
+            | sed -n 's/.*"default_branch"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p'
+    )"
+
+    if [[ -z "$default_branch" ]]; then
+        log "Failed to detect the default branch for wprint3d-core."
+
+        exit 1
+    fi
+
+    curl -sfL "https://raw.githubusercontent.com/wprint3d/wprint3d-core/refs/heads/${default_branch}/run.sh" > "$temp_file"
+
+    if [[ ! -s "$temp_file" ]]; then
+        log "Failed to download the WPrint 3D runner."
+
+        exit 1
+    fi
+
+    chmod +x "$temp_file"
+    mv -fv "$temp_file" wprint3d-run.sh
+
+    for runtime_support_file in "${runtime_support_files[@]}"; do
+        mkdir -p "$(dirname "$runtime_support_file")"
+
+        curl -sfL "https://raw.githubusercontent.com/wprint3d/wprint3d-core/refs/heads/${default_branch}/${runtime_support_file}" > "$runtime_support_file"
+
+        if [[ ! -s "$runtime_support_file" ]]; then
+            log "Failed to download the required runtime helper: ${runtime_support_file}"
+
+            exit 1
+        fi
+    done
+}
+
+main() {
+    ensure_podman
+    ensure_podman_compose
+    configure_compose_provider
+    ensure_docker_compatibility
+
+    mkdir -p "$TARGET_PATH"
+    cd "$TARGET_PATH"
+
+    log "Installing WPrint 3D..."
+    download_runner
+
+    bash wprint3d-run.sh
+}
+
+main "$@"
