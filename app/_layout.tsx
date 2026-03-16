@@ -12,7 +12,7 @@ export default function RootLayout() {
 
         {/* Primary Meta Tags */}
         <meta name="description" content="Improve your 3D-printing experience with a fast and reliable web-based remote control software. Compatible with Linux, Windows (WSL 2), and Raspberry Pi." />
-        <meta name="keywords" content="3D printing, remote control, Raspberry Pi, Docker, Linux, Windows, WSL 2, G-code preview, timelapse, multiple printers" />
+        <meta name="keywords" content="3D printing, remote control, Raspberry Pi, Podman, Linux, Windows, WSL 2, G-code preview, timelapse, multiple printers" />
         <meta name="author" content="WPrint 3D" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
         <meta name="robots" content="index, follow" />

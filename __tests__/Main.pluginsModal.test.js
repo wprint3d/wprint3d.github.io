@@ -159,7 +159,7 @@ jest.mock("../app/tabs/TabDocker", () => {
   const React = require("react");
   const { Text } = require("react-native");
 
-  return () => <Text>Docker tab</Text>;
+  return () => <Text>Podman tab</Text>;
 });
 
 jest.mock("../app/tabs/TabRaspberryPi", () => {
@@ -182,7 +182,7 @@ jest.mock("../app/includes/LocalizationProvider", () => ({
         gettingStartedBody: "Body copy",
         tabs: {
           raspberryPi: "Raspberry Pi",
-          docker: "Docker",
+          docker: "Podman (Docker-like)",
           bareMetal: "Bare metal",
         },
         cards: [

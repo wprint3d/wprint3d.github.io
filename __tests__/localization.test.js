@@ -97,4 +97,48 @@ describe("localization", () => {
     expect(translations.es_AR.main.browsePlugins).toContain("Explorá");
     expect(translations.es_AR.main.getStarted).toBe("Primeros pasos");
   });
+
+  it("describes the container-based install flow as Podman in every supported language", () => {
+    expect(translations.en.main.tabs.docker).toBe("Podman (Docker-like)");
+    expect(translations.es.main.tabs.docker).toContain("Podman");
+    expect(translations.fr.main.tabs.docker).toContain("Podman");
+    expect(translations.pt.main.tabs.docker).toContain("Podman");
+    expect(translations.it.main.tabs.docker).toContain("Podman");
+    expect(translations.de.main.tabs.docker).toContain("Podman");
+    expect(translations.es_AR.main.tabs.docker).toContain("Podman");
+
+    expect(translations.en.docker.installEngineTitle).toContain("Podman");
+    expect(translations.es.docker.installEngineTitle).toContain("Podman");
+    expect(translations.fr.docker.installEngineTitle).toContain("Podman");
+    expect(translations.pt.docker.installEngineTitle).toContain("Podman");
+    expect(translations.it.docker.installEngineTitle).toContain("Podman");
+    expect(translations.de.docker.installEngineTitle).toContain("Podman");
+    expect(translations.es_AR.docker.installEngineTitle).toContain("Podman");
+
+    expect(translations.en.docker.postInstallTitle).toBeUndefined();
+    expect(translations.es.docker.postInstallTitle).toBeUndefined();
+    expect(translations.fr.docker.postInstallTitle).toBeUndefined();
+    expect(translations.pt.docker.postInstallTitle).toBeUndefined();
+    expect(translations.it.docker.postInstallTitle).toBeUndefined();
+    expect(translations.de.docker.postInstallTitle).toBeUndefined();
+    expect(translations.es_AR.docker.postInstallTitle).toBeUndefined();
+
+    expect(translations.en.docker.recommendedBody).toContain("Podman");
+    expect(translations.es.docker.recommendedBody).toContain("Podman");
+    expect(translations.fr.docker.recommendedBody).toContain("Podman");
+    expect(translations.pt.docker.recommendedBody).toContain("Podman");
+    expect(translations.it.docker.recommendedBody).toContain("Podman");
+    expect(translations.de.docker.recommendedBody).toContain("Podman");
+    expect(translations.es_AR.docker.recommendedBody).toContain("Podman");
+  });
+
+  it("provides a translated Raspberry Pi device label in every supported language", () => {
+    expect(translations.en.raspberryPi.deviceLabel).toBe("Raspberry Pi 3 (or newer)");
+    expect(translations.es.raspberryPi.deviceLabel).toBe("Raspberry Pi 3 (o más reciente)");
+    expect(translations.fr.raspberryPi.deviceLabel).toBe("Raspberry Pi 3 (ou plus récent)");
+    expect(translations.pt.raspberryPi.deviceLabel).toBe("Raspberry Pi 3 (ou mais recente)");
+    expect(translations.it.raspberryPi.deviceLabel).toBe("Raspberry Pi 3 (o successivo)");
+    expect(translations.de.raspberryPi.deviceLabel).toBe("Raspberry Pi 3 (oder neuer)");
+    expect(translations.es_AR.raspberryPi.deviceLabel).toBe("Raspberry Pi 3 (o más reciente)");
+  });
 });

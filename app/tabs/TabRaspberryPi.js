@@ -64,7 +64,7 @@ const TabRaspberryPi = ({ isSmallScreen = false }) => {
             <View style={{ flexGrow: 1, flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 16, marginBottom: 16 }}>
                 <CompatibilityHint
                     icon="raspberry-pi"
-                    text="Raspberry Pi 3 (or newer)"
+                    text={strings.raspberryPi.deviceLabel}
                 />
             </View>
 
