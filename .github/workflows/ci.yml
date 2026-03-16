@@ -36,6 +36,8 @@ jobs:
         run: pnpm install
       -
         name: Compile the bundle
+        env:
+          EXPO_PUBLIC_PLUGIN_SYSTEM_ENABLED: ${{ vars.EXPO_PUBLIC_PLUGIN_SYSTEM_ENABLED }}
         run: pnpm exec expo export --platform web
       -
         name: Copy extra assets to the dist folder
