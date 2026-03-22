@@ -301,7 +301,9 @@ main() {
     log "Installing WPrint 3D..."
     download_runner
 
-    bash wprint3d-run.sh
+    # Keep the runner on a stable locale so its sudo/auth parsing does not vary
+    # across translated environments.
+    LC_ALL=C LANG=C bash wprint3d-run.sh
 }
 
 main "$@"
