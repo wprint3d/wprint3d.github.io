@@ -414,4 +414,108 @@ printf '%s\\n' "$file"
       fs.existsSync(path.join(homeDir, ".wprint3d", "internal", "container-runtime.sh"))
     ).toBe(true);
   });
+
+  it("runs the downloaded runner with a C locale so sudo auth detection stays portable", () => {
+    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "wprint3d-install-test-"));
+    const fakeBin = path.join(tempRoot, "bin");
+    const homeDir = path.join(tempRoot, "home");
+    const logsDir = path.join(tempRoot, "logs");
+
+    fs.mkdirSync(fakeBin, { recursive: true });
+    fs.mkdirSync(homeDir, { recursive: true });
+    fs.mkdirSync(logsDir, { recursive: true });
+
+    [
+      "bash",
+      "cat",
+      "chmod",
+      "dirname",
+      "env",
+      "grep",
+      "mkdir",
+      "mv",
+      "sed",
+      "touch",
+    ].forEach((commandName) => symlinkSystemCommand(fakeBin, commandName));
+
+    writeExecutable(
+      path.join(fakeBin, "podman"),
+      `#!/usr/bin/env bash
+printf 'podman %s\\n' "$*"
+`
+    );
+
+    writeExecutable(
+      path.join(fakeBin, "podman-compose"),
+      `#!/usr/bin/env bash
+printf 'podman-compose %s\\n' "$*"
+`
+    );
+
+    writeExecutable(
+      path.join(fakeBin, "curl"),
+      `#!/usr/bin/env bash
+set -euo pipefail
+url="\${!#}"
+
+if [[ "$url" == "https://api.github.com/repos/wprint3d/wprint3d-core" ]]; then
+  printf '{"default_branch":"main"}'
+  exit 0
+fi
+
+if [[ "$url" == "https://raw.githubusercontent.com/wprint3d/wprint3d-core/refs/heads/main/run.sh" ]]; then
+  cat <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+printf '%s\\n' "\${LC_ALL:-<unset>}" > "$TEST_LOG_DIR/runner-lc-all.txt"
+printf '%s\\n' "\${LANG:-<unset>}" > "$TEST_LOG_DIR/runner-lang.txt"
+
+if [[ "\${LC_ALL:-}" != 'C' ]] || [[ "\${LANG:-}" != 'C' ]]; then
+  printf 'sudo: se requiere una contraseña\\n' >&2
+  exit 1
+fi
+EOF
+  exit 0
+fi
+
+if [[ "$url" == "https://raw.githubusercontent.com/wprint3d/wprint3d-core/refs/heads/main/internal/container-runtime.sh" ]]; then
+  cat <<'EOF'
+#!/usr/bin/env bash
+EOF
+  exit 0
+fi
+
+printf 'unexpected curl url: %s\\n' "$url" >&2
+exit 1
+`
+    );
+
+    writeExecutable(
+      path.join(fakeBin, "mktemp"),
+      `#!/usr/bin/env bash
+set -euo pipefail
+file="$TEST_TMP_DIR/generated-\${RANDOM}"
+touch "$file"
+printf '%s\\n' "$file"
+`
+    );
+
+    const result = spawnSync("bash", [INSTALL_SCRIPT_PATH], {
+      cwd: process.cwd(),
+      env: {
+        ...process.env,
+        HOME: homeDir,
+        PATH: fakeBin,
+        TEST_LOG_DIR: logsDir,
+        TEST_TMP_DIR: tempRoot,
+        LANG: "es_AR.UTF-8",
+        LC_ALL: "es_AR.UTF-8",
+      },
+      encoding: "utf8",
+    });
+
+    expect(result.status).toBe(0);
+    expect(fs.readFileSync(path.join(logsDir, "runner-lc-all.txt"), "utf8").trim()).toBe("C");
+    expect(fs.readFileSync(path.join(logsDir, "runner-lang.txt"), "utf8").trim()).toBe("C");
+  });
 });
