@@ -206,6 +206,9 @@ docker compose version > "$TEST_LOG_DIR/docker-compose-version.txt"
       `#!/usr/bin/env bash
 set -euo pipefail
 printf '%s\n' "sudo $*" >> "$TEST_LOG_DIR/commands.log"
+if [[ "$1" == "-n" && "$2" == "true" ]]; then
+  exit 0
+fi
 exec "$@"
 `
     );
