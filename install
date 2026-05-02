@@ -5,8 +5,7 @@ set -euo pipefail
 TARGET_PATH="${HOME}/.wprint3d"
 
 log() {
-    printf '%s
-' "$*"
+    printf '%s\n' "$*"
 }
 
 has_command() {
@@ -27,15 +26,39 @@ ensure_docker() {
     fi
 }
 
-download_runner() {
+detect_default_branch() {
+    curl -sfL \
+        -H "Accept: application/vnd.github+json" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        https://api.github.com/repos/wprint3d/wprint3d-core \
+        | sed -n 's/.*"default_branch"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p'
+}
+
+download_core_file() {
+    local default_branch="$1"
+    local source_path="$2"
+    local destination_path="$3"
     local temp_file
+
+    temp_file="$(mktemp --suffix=-wprint3d-download)"
+
+    curl -sfL "https://raw.githubusercontent.com/wprint3d/wprint3d-core/refs/heads/${default_branch}/${source_path}" > "$temp_file"
+
+    if [[ ! -s "$temp_file" ]]; then
+        log "Failed to download ${source_path}."
+
+        exit 1
+    fi
+
+    mkdir -p "$(dirname "$destination_path")"
+    chmod +x "$temp_file"
+    mv -fv "$temp_file" "$destination_path"
+}
+
+download_runner() {
     local default_branch
 
-    temp_file="$(mktemp --suffix=-wprint3d-runner)"
-
-    default_branch="$(
-        curl -sfL             -H "Accept: application/vnd.github+json"             -H "X-GitHub-Api-Version: 2022-11-28"             https://api.github.com/repos/wprint3d/wprint3d-core             | sed -n 's/.*"default_branch"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/p'
-    )"
+    default_branch="$(detect_default_branch)"
 
     if [[ -z "$default_branch" ]]; then
         log "Failed to detect the default branch for wprint3d-core."
@@ -43,16 +66,8 @@ download_runner() {
         exit 1
     fi
 
-    curl -sfL "https://raw.githubusercontent.com/wprint3d/wprint3d-core/refs/heads/${default_branch}/run.sh" > "$temp_file"
-
-    if [[ ! -s "$temp_file" ]]; then
-        log "Failed to download the WPrint 3D runner."
-
-        exit 1
-    fi
-
-    chmod +x "$temp_file"
-    mv -fv "$temp_file" wprint3d-run.sh
+    download_core_file "$default_branch" run.sh wprint3d-run.sh
+    download_core_file "$default_branch" internal/migrate-podman-mongo-volume-to-docker.sh internal/migrate-podman-mongo-volume-to-docker.sh
 }
 
 main() {
