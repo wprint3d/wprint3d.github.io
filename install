@@ -12,18 +12,39 @@ has_command() {
     command -v "$1" >/dev/null 2>&1
 }
 
+docker_is_podman_wrapper() {
+    local version_output
+
+    version_output="$(docker --version 2>/dev/null || true)"
+
+    [[ "${version_output,,}" == *podman* ]]
+}
+
 ensure_docker() {
     if ! has_command docker || ! docker --version >/dev/null 2>&1; then
-        log "Docker is not installed. Please install Docker and try again."
+        log "Docker is not installed. Please install Docker Engine and try again."
 
         exit 1
     fi
 
-    if ! docker compose version >/dev/null 2>&1; then
-        log "Docker Compose is not available. Please install the Docker Compose plugin and try again."
+    if docker_is_podman_wrapper; then
+        log "The 'docker' command on this host is still the Podman compatibility wrapper."
+        log "Remove podman-docker/the local Docker wrapper and install Docker Engine, then run this installer again."
 
         exit 1
     fi
+
+    if docker compose version >/dev/null 2>&1; then
+        return 0
+    fi
+
+    if has_command docker-compose && docker-compose version >/dev/null 2>&1; then
+        return 0
+    fi
+
+    log "Docker Compose is not available to the Docker CLI. Install the Docker Compose plugin or docker-compose, then try again."
+
+    exit 1
 }
 
 detect_default_branch() {
