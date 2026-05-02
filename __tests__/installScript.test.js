@@ -23,33 +23,37 @@ const symlinkSystemCommand = (fakeBin, commandName) => {
   fs.symlinkSync(resolved, path.join(fakeBin, commandName));
 };
 
-describe("install script", () => {
-  it("installs Podman dependencies and exposes a Docker-compatible CLI before running the project", () => {
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "wprint3d-install-test-"));
-    const fakeBin = path.join(tempRoot, "bin");
-    const homeDir = path.join(tempRoot, "home");
-    const logsDir = path.join(tempRoot, "logs");
+const createTestDirs = () => {
+  const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "wprint3d-install-test-"));
+  const fakeBin = path.join(tempRoot, "bin");
+  const homeDir = path.join(tempRoot, "home");
+  const logsDir = path.join(tempRoot, "logs");
 
-    fs.mkdirSync(fakeBin, { recursive: true });
-    fs.mkdirSync(homeDir, { recursive: true });
-    fs.mkdirSync(logsDir, { recursive: true });
+  fs.mkdirSync(fakeBin, { recursive: true });
+  fs.mkdirSync(homeDir, { recursive: true });
+  fs.mkdirSync(logsDir, { recursive: true });
 
-    [
-      "bash",
-      "cat",
-      "chmod",
-      "dirname",
-      "env",
-      "grep",
-      "mkdir",
-      "mv",
-      "sed",
-      "touch",
-    ].forEach((commandName) => symlinkSystemCommand(fakeBin, commandName));
+  ["bash", "cat", "chmod", "dirname", "mkdir", "mv", "readlink", "rm", "sed", "touch"].forEach((commandName) =>
+    symlinkSystemCommand(fakeBin, commandName)
+  );
 
-    writeExecutable(
-      path.join(fakeBin, "curl"),
-      `#!/usr/bin/env bash
+  writeExecutable(
+    path.join(fakeBin, "mktemp"),
+    `#!/usr/bin/env bash
+set -euo pipefail
+file="$TEST_TMP_DIR/generated-\${RANDOM}"
+touch "$file"
+printf '%s\n' "$file"
+`
+  );
+
+  return { tempRoot, fakeBin, homeDir, logsDir };
+};
+
+const writeSuccessfulCurl = (fakeBin, runnerBody) => {
+  writeExecutable(
+    path.join(fakeBin, "curl"),
+    `#!/usr/bin/env bash
 set -euo pipefail
 url="\${!#}"
 
@@ -60,76 +64,104 @@ fi
 
 if [[ "$url" == "https://raw.githubusercontent.com/wprint3d/wprint3d-core/refs/heads/main/run.sh" ]]; then
   cat <<'EOF'
+${runnerBody}
+EOF
+  exit 0
+fi
+
+if [[ "$url" == "https://raw.githubusercontent.com/wprint3d/wprint3d-core/refs/heads/main/internal/migrate-podman-mongo-volume-to-docker.sh" ]]; then
+  cat <<'EOF'
 #!/usr/bin/env bash
+printf 'migration-helper-ready\n'
+EOF
+  exit 0
+fi
+
+printf 'unexpected curl url: %s\n' "$url" >&2
+exit 1
+`
+  );
+};
+
+describe("install script", () => {
+  it("fails fast when Docker is missing", () => {
+    const { tempRoot, fakeBin, homeDir } = createTestDirs();
+
+    const result = spawnSync("bash", [INSTALL_SCRIPT_PATH], {
+      cwd: process.cwd(),
+      env: {
+        ...process.env,
+        HOME: homeDir,
+        PATH: fakeBin,
+        TEST_TMP_DIR: tempRoot,
+      },
+      encoding: "utf8",
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain("Docker is not installed");
+  });
+
+
+
+  it("fails with a specific message when docker is a Podman wrapper", () => {
+    const { tempRoot, fakeBin, homeDir } = createTestDirs();
+
+    writeExecutable(
+      path.join(fakeBin, "docker"),
+      `#!/usr/bin/env bash
 set -euo pipefail
-printf '%s\\n' "$PATH" > "$TEST_LOG_DIR/runner-path.txt"
+if [[ "$1" == "--version" ]]; then
+  printf 'podman version 5.0.0\n'
+  exit 0
+fi
+if [[ "$1" == "compose" && "$2" == "version" ]]; then
+  exit 1
+fi
+`
+    );
+
+    const result = spawnSync("bash", [INSTALL_SCRIPT_PATH], {
+      cwd: process.cwd(),
+      env: {
+        ...process.env,
+        HOME: homeDir,
+        PATH: fakeBin,
+        TEST_TMP_DIR: tempRoot,
+      },
+      encoding: "utf8",
+    });
+
+    expect(result.status).toBe(1);
+    expect(result.stdout).toContain("Podman compatibility wrapper");
+  });
+
+  it("downloads and runs the Docker runner without runtime helper files", () => {
+    const { tempRoot, fakeBin, homeDir, logsDir } = createTestDirs();
+
+    writeExecutable(
+      path.join(fakeBin, "docker"),
+      `#!/usr/bin/env bash
+set -euo pipefail
+if [[ "$1" == "--version" ]]; then
+  printf 'Docker version 27.0.0\n'
+  exit 0
+fi
+if [[ "$1" == "compose" && "$2" == "version" ]]; then
+  printf 'Docker Compose version v2.29.0\n'
+  exit 0
+fi
+printf 'docker %s\n' "$*"
+`
+    );
+
+    writeSuccessfulCurl(
+      fakeBin,
+      `#!/usr/bin/env bash
+set -euo pipefail
 command -v docker > "$TEST_LOG_DIR/docker-path.txt"
 docker --version > "$TEST_LOG_DIR/docker-version.txt"
 docker compose version > "$TEST_LOG_DIR/docker-compose-version.txt"
-EOF
-  exit 0
-fi
-
-if [[ "$url" == "https://raw.githubusercontent.com/wprint3d/wprint3d-core/refs/heads/main/internal/container-runtime.sh" ]]; then
-  cat <<'EOF'
-#!/usr/bin/env bash
-EOF
-  exit 0
-fi
-
-printf 'unexpected curl url: %s\\n' "$url" >&2
-exit 1
-`
-    );
-
-    writeExecutable(
-      path.join(fakeBin, "mktemp"),
-      `#!/usr/bin/env bash
-set -euo pipefail
-file="$TEST_TMP_DIR/generated-\${RANDOM}"
-touch "$file"
-printf '%s\\n' "$file"
-`
-    );
-
-    writeExecutable(
-      path.join(fakeBin, "sudo"),
-      `#!/usr/bin/env bash
-set -euo pipefail
-printf 'sudo %s\\n' "$*" >> "$TEST_LOG_DIR/install.log"
-exec "$@"
-`
-    );
-
-    writeExecutable(
-      path.join(fakeBin, "apt-get"),
-      `#!/usr/bin/env bash
-set -euo pipefail
-printf 'apt-get %s\\n' "$*" >> "$TEST_LOG_DIR/install.log"
-
-if [[ "$1" == "install" ]]; then
-  cat <<'EOF' > "$TEST_BIN_DIR/podman"
-#!/usr/bin/env bash
-if [[ "$1" == "--version" ]]; then
-  printf 'podman version 5.0.0\\n'
-  exit 0
-fi
-
-if [[ "$1" == "compose" && "$2" == "version" ]]; then
-  printf 'podman compose version 1.0.6\\n'
-  exit 0
-fi
-
-printf 'podman %s\\n' "$*"
-EOF
-  chmod +x "$TEST_BIN_DIR/podman"
-
-  cat <<'EOF' > "$TEST_BIN_DIR/podman-compose"
-#!/usr/bin/env bash
-printf 'podman-compose %s\\n' "$*"
-EOF
-  chmod +x "$TEST_BIN_DIR/podman-compose"
-fi
 `
     );
 
@@ -139,7 +171,6 @@ fi
         ...process.env,
         HOME: homeDir,
         PATH: fakeBin,
-        TEST_BIN_DIR: fakeBin,
         TEST_LOG_DIR: logsDir,
         TEST_TMP_DIR: tempRoot,
       },
@@ -147,356 +178,134 @@ fi
     });
 
     expect(result.status).toBe(0);
-
-    const installLog = fs.readFileSync(path.join(logsDir, "install.log"), "utf8");
-    expect(installLog).toContain("apt-get update");
-    expect(installLog).toContain("apt-get install -y podman podman-compose");
-
-    const dockerPath = fs.readFileSync(path.join(logsDir, "docker-path.txt"), "utf8").trim();
-    expect(dockerPath).toBe(path.join(homeDir, ".local/bin/docker"));
-
-    const dockerVersion = fs.readFileSync(path.join(logsDir, "docker-version.txt"), "utf8");
-    expect(dockerVersion).toContain("podman version 5.0.0");
-
-    const dockerComposeVersion = fs.readFileSync(
-      path.join(logsDir, "docker-compose-version.txt"),
-      "utf8"
+    expect(fs.readFileSync(path.join(logsDir, "docker-path.txt"), "utf8").trim()).toBe(
+      path.join(fakeBin, "docker")
     );
-    expect(dockerComposeVersion).toContain("podman compose version 1.0.6");
-
-    const containersConfig = fs.readFileSync(
-      path.join(homeDir, ".config/containers/containers.conf"),
-      "utf8"
+    expect(fs.readFileSync(path.join(logsDir, "docker-version.txt"), "utf8")).toContain(
+      "Docker version"
     );
-    expect(containersConfig).toContain('compose_provider = "podman-compose"');
-  });
-
-  it("installs the compose provider when Podman already exists but compose support is missing", () => {
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "wprint3d-install-test-"));
-    const fakeBin = path.join(tempRoot, "bin");
-    const homeDir = path.join(tempRoot, "home");
-    const logsDir = path.join(tempRoot, "logs");
-
-    fs.mkdirSync(fakeBin, { recursive: true });
-    fs.mkdirSync(homeDir, { recursive: true });
-    fs.mkdirSync(logsDir, { recursive: true });
-
-    [
-      "bash",
-      "cat",
-      "chmod",
-      "dirname",
-      "env",
-      "grep",
-      "mkdir",
-      "mv",
-      "sed",
-      "touch",
-    ].forEach((commandName) => symlinkSystemCommand(fakeBin, commandName));
-
-    writeExecutable(
-      path.join(fakeBin, "podman"),
-      `#!/usr/bin/env bash
-set -euo pipefail
-
-if [[ "$1" == "--version" ]]; then
-  printf 'podman version 5.0.0\\n'
-  exit 0
-fi
-
-if [[ "$1" == "compose" && "$2" == "version" ]]; then
-  if [[ -x "$TEST_BIN_DIR/podman-compose" ]] && grep -q 'compose_provider = "podman-compose"' "$HOME/.config/containers/containers.conf"; then
-    printf 'podman compose version 1.0.6\\n'
-    exit 0
-  fi
-
-  printf 'missing compose provider\\n' >&2
-  exit 1
-fi
-
-printf 'podman %s\\n' "$*"
-`
+    expect(fs.readFileSync(path.join(logsDir, "docker-compose-version.txt"), "utf8")).toContain(
+      "Docker Compose version"
     );
-
-    writeExecutable(
-      path.join(fakeBin, "curl"),
-      `#!/usr/bin/env bash
-set -euo pipefail
-url="\${!#}"
-
-if [[ "$url" == "https://api.github.com/repos/wprint3d/wprint3d-core" ]]; then
-  printf '{"default_branch":"main"}'
-  exit 0
-fi
-
-if [[ "$url" == "https://raw.githubusercontent.com/wprint3d/wprint3d-core/refs/heads/main/run.sh" ]]; then
-  cat <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-docker compose version > "$TEST_LOG_DIR/docker-compose-version.txt"
-EOF
-  exit 0
-fi
-
-if [[ "$url" == "https://raw.githubusercontent.com/wprint3d/wprint3d-core/refs/heads/main/internal/container-runtime.sh" ]]; then
-  cat <<'EOF'
-#!/usr/bin/env bash
-EOF
-  exit 0
-fi
-
-printf 'unexpected curl url: %s\\n' "$url" >&2
-exit 1
-`
-    );
-
-    writeExecutable(
-      path.join(fakeBin, "mktemp"),
-      `#!/usr/bin/env bash
-set -euo pipefail
-file="$TEST_TMP_DIR/generated-\${RANDOM}"
-touch "$file"
-printf '%s\\n' "$file"
-`
-    );
-
-    writeExecutable(
-      path.join(fakeBin, "sudo"),
-      `#!/usr/bin/env bash
-set -euo pipefail
-printf 'sudo %s\\n' "$*" >> "$TEST_LOG_DIR/install.log"
-exec "$@"
-`
-    );
-
-    writeExecutable(
-      path.join(fakeBin, "apt-get"),
-      `#!/usr/bin/env bash
-set -euo pipefail
-printf 'apt-get %s\\n' "$*" >> "$TEST_LOG_DIR/install.log"
-
-if [[ "$1" == "install" ]]; then
-  cat <<'EOF' > "$TEST_BIN_DIR/podman-compose"
-#!/usr/bin/env bash
-printf 'podman-compose %s\\n' "$*"
-EOF
-  chmod +x "$TEST_BIN_DIR/podman-compose"
-fi
-`
-    );
-
-    const result = spawnSync("bash", [INSTALL_SCRIPT_PATH], {
-      cwd: process.cwd(),
-      env: {
-        ...process.env,
-        HOME: homeDir,
-        PATH: fakeBin,
-        TEST_BIN_DIR: fakeBin,
-        TEST_LOG_DIR: logsDir,
-        TEST_TMP_DIR: tempRoot,
-      },
-      encoding: "utf8",
-    });
-
-    expect(result.status).toBe(0);
-
-    const installLog = fs.readFileSync(path.join(logsDir, "install.log"), "utf8");
-    expect(installLog).toContain("apt-get install -y podman-compose");
-
-    const dockerComposeVersion = fs.readFileSync(
-      path.join(logsDir, "docker-compose-version.txt"),
-      "utf8"
-    );
-    expect(dockerComposeVersion).toContain("podman compose version 1.0.6");
-  });
-
-  it("downloads the runtime helper files required by the fetched runner", () => {
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "wprint3d-install-test-"));
-    const fakeBin = path.join(tempRoot, "bin");
-    const homeDir = path.join(tempRoot, "home");
-    const logsDir = path.join(tempRoot, "logs");
-
-    fs.mkdirSync(fakeBin, { recursive: true });
-    fs.mkdirSync(homeDir, { recursive: true });
-    fs.mkdirSync(logsDir, { recursive: true });
-
-    [
-      "bash",
-      "cat",
-      "chmod",
-      "dirname",
-      "env",
-      "grep",
-      "mkdir",
-      "mv",
-      "sed",
-      "touch",
-    ].forEach((commandName) => symlinkSystemCommand(fakeBin, commandName));
-
-    writeExecutable(
-      path.join(fakeBin, "podman"),
-      `#!/usr/bin/env bash
-printf 'podman %s\\n' "$*"
-`
-    );
-
-    writeExecutable(
-      path.join(fakeBin, "podman-compose"),
-      `#!/usr/bin/env bash
-printf 'podman-compose %s\\n' "$*"
-`
-    );
-
-    writeExecutable(
-      path.join(fakeBin, "curl"),
-      `#!/usr/bin/env bash
-set -euo pipefail
-url="\${!#}"
-
-if [[ "$url" == "https://api.github.com/repos/wprint3d/wprint3d-core" ]]; then
-  printf '{"default_branch":"main"}'
-  exit 0
-fi
-
-if [[ "$url" == "https://raw.githubusercontent.com/wprint3d/wprint3d-core/refs/heads/main/run.sh" ]]; then
-  cat <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-SCRIPT_PATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-source "$SCRIPT_PATH/internal/container-runtime.sh"
-init_container_runtime
-printf 'runner-ready\\n' > "$TEST_LOG_DIR/runtime-helper.txt"
-EOF
-  exit 0
-fi
-
-if [[ "$url" == "https://raw.githubusercontent.com/wprint3d/wprint3d-core/refs/heads/main/internal/container-runtime.sh" ]]; then
-  cat <<'EOF'
-#!/usr/bin/env bash
-init_container_runtime() {
-  return 0
-}
-EOF
-  exit 0
-fi
-
-printf 'unexpected curl url: %s\\n' "$url" >&2
-exit 1
-`
-    );
-
-    writeExecutable(
-      path.join(fakeBin, "mktemp"),
-      `#!/usr/bin/env bash
-set -euo pipefail
-file="$TEST_TMP_DIR/generated-\${RANDOM}"
-touch "$file"
-printf '%s\\n' "$file"
-`
-    );
-
-    const result = spawnSync("bash", [INSTALL_SCRIPT_PATH], {
-      cwd: process.cwd(),
-      env: {
-        ...process.env,
-        HOME: homeDir,
-        PATH: fakeBin,
-        TEST_BIN_DIR: fakeBin,
-        TEST_LOG_DIR: logsDir,
-        TEST_TMP_DIR: tempRoot,
-      },
-      encoding: "utf8",
-    });
-
-    expect(result.status).toBe(0);
-    expect(fs.readFileSync(path.join(logsDir, "runtime-helper.txt"), "utf8")).toContain("runner-ready");
+    expect(fs.existsSync(path.join(homeDir, ".wprint3d", "internal", "container-runtime.sh"))).toBe(false);
     expect(
-      fs.existsSync(path.join(homeDir, ".wprint3d", "internal", "container-runtime.sh"))
+      fs.existsSync(
+        path.join(homeDir, ".wprint3d", "internal", "migrate-podman-mongo-volume-to-docker.sh")
+      )
     ).toBe(true);
   });
 
-  it("runs the downloaded runner with a C locale so sudo auth detection stays portable", () => {
-    const tempRoot = fs.mkdtempSync(path.join(os.tmpdir(), "wprint3d-install-test-"));
-    const fakeBin = path.join(tempRoot, "bin");
-    const homeDir = path.join(tempRoot, "home");
-    const logsDir = path.join(tempRoot, "logs");
+  it("removes a stale Podman-backed Docker socket before checking Docker info", () => {
+    const { tempRoot, fakeBin, homeDir, logsDir } = createTestDirs();
+    const socketPath = path.join(tempRoot, "docker.sock");
 
-    fs.mkdirSync(fakeBin, { recursive: true });
-    fs.mkdirSync(homeDir, { recursive: true });
-    fs.mkdirSync(logsDir, { recursive: true });
-
-    [
-      "bash",
-      "cat",
-      "chmod",
-      "dirname",
-      "env",
-      "grep",
-      "mkdir",
-      "mv",
-      "sed",
-      "touch",
-    ].forEach((commandName) => symlinkSystemCommand(fakeBin, commandName));
+    fs.symlinkSync("/run/podman/podman.sock", socketPath);
 
     writeExecutable(
-      path.join(fakeBin, "podman"),
+      path.join(fakeBin, "sudo"),
       `#!/usr/bin/env bash
-printf 'podman %s\\n' "$*"
+set -euo pipefail
+printf '%s\n' "sudo $*" >> "$TEST_LOG_DIR/commands.log"
+exec "$@"
 `
     );
 
     writeExecutable(
-      path.join(fakeBin, "podman-compose"),
-      `#!/usr/bin/env bash
-printf 'podman-compose %s\\n' "$*"
-`
-    );
-
-    writeExecutable(
-      path.join(fakeBin, "curl"),
+      path.join(fakeBin, "systemctl"),
       `#!/usr/bin/env bash
 set -euo pipefail
-url="\${!#}"
-
-if [[ "$url" == "https://api.github.com/repos/wprint3d/wprint3d-core" ]]; then
-  printf '{"default_branch":"main"}'
-  exit 0
-fi
-
-if [[ "$url" == "https://raw.githubusercontent.com/wprint3d/wprint3d-core/refs/heads/main/run.sh" ]]; then
-  cat <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-printf '%s\\n' "\${LC_ALL:-<unset>}" > "$TEST_LOG_DIR/runner-lc-all.txt"
-printf '%s\\n' "\${LANG:-<unset>}" > "$TEST_LOG_DIR/runner-lang.txt"
-
-if [[ "\${LC_ALL:-}" != 'C' ]] || [[ "\${LANG:-}" != 'C' ]]; then
-  printf 'sudo: se requiere una contraseña\\n' >&2
+printf '%s\n' "systemctl $*" >> "$TEST_LOG_DIR/commands.log"
+if [[ "$1" == "cat" ]]; then
   exit 1
 fi
-EOF
-  exit 0
-fi
-
-if [[ "$url" == "https://raw.githubusercontent.com/wprint3d/wprint3d-core/refs/heads/main/internal/container-runtime.sh" ]]; then
-  cat <<'EOF'
-#!/usr/bin/env bash
-EOF
-  exit 0
-fi
-
-printf 'unexpected curl url: %s\\n' "$url" >&2
-exit 1
+exit 0
 `
     );
 
     writeExecutable(
-      path.join(fakeBin, "mktemp"),
+      path.join(fakeBin, "docker"),
       `#!/usr/bin/env bash
 set -euo pipefail
-file="$TEST_TMP_DIR/generated-\${RANDOM}"
-touch "$file"
-printf '%s\\n' "$file"
+if [[ "$1" == "--version" ]]; then
+  printf 'Docker version 27.0.0\n'
+  exit 0
+fi
+if [[ "$1" == "info" ]]; then
+  if [[ -e "$TEST_SOCKET_PATH" || -L "$TEST_SOCKET_PATH" ]]; then
+    printf 'still pointing at stale socket\n' >&2
+    exit 1
+  fi
+
+  exit 0
+fi
+if [[ "$1" == "compose" && "$2" == "version" ]]; then
+  printf 'Docker Compose version v2.29.0\n'
+  exit 0
+fi
+`
+    );
+
+    writeSuccessfulCurl(
+      fakeBin,
+      `#!/usr/bin/env bash
+set -euo pipefail
+printf 'runner-ok\n' > "$TEST_LOG_DIR/runner.txt"
+`
+    );
+
+    const result = spawnSync("bash", [INSTALL_SCRIPT_PATH], {
+      cwd: process.cwd(),
+      env: {
+        ...process.env,
+        HOME: homeDir,
+        PATH: fakeBin,
+        TEST_LOG_DIR: logsDir,
+        TEST_SOCKET_PATH: socketPath,
+        TEST_TMP_DIR: tempRoot,
+        WPRINT3D_DOCKER_SOCKET_PATHS: socketPath,
+      },
+      encoding: "utf8",
+    });
+
+    expect(result.status).toBe(0);
+    expect(result.stdout).toContain("Removing stale Podman-backed Docker socket symlink");
+    expect(fs.lstatSync(socketPath, { throwIfNoEntry: false })).toBeUndefined();
+    expect(fs.readFileSync(path.join(logsDir, "commands.log"), "utf8")).toContain(
+      `sudo rm -f ${socketPath}`
+    );
+    expect(fs.readFileSync(path.join(logsDir, "commands.log"), "utf8")).toContain(
+      "systemctl restart docker"
+    );
+  });
+
+  it("runs the downloaded runner with a C locale", () => {
+    const { tempRoot, fakeBin, homeDir, logsDir } = createTestDirs();
+
+    writeExecutable(
+      path.join(fakeBin, "docker"),
+      `#!/usr/bin/env bash
+set -euo pipefail
+if [[ "$1" == "--version" ]]; then
+  printf 'Docker version 27.0.0\n'
+  exit 0
+fi
+if [[ "$1" == "compose" && "$2" == "version" ]]; then
+  printf 'Docker Compose version v2.29.0\n'
+  exit 0
+fi
+`
+    );
+
+    writeSuccessfulCurl(
+      fakeBin,
+      `#!/usr/bin/env bash
+set -euo pipefail
+printf '%s\n' "\${LC_ALL:-<unset>}" > "$TEST_LOG_DIR/runner-lc-all.txt"
+printf '%s\n' "\${LANG:-<unset>}" > "$TEST_LOG_DIR/runner-lang.txt"
+
+if [[ "\${LC_ALL:-}" != 'C' ]] || [[ "\${LANG:-}" != 'C' ]]; then
+  exit 1
+fi
 `
     );
 

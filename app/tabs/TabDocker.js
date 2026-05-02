@@ -108,14 +108,23 @@ const TabDocker = ({ isSmallScreen = false }) => {
                     description={strings.docker.installEngineDescription}
                     left={ props => <List.Icon {...props} icon='numeric-2-circle' />}
                     right={props => <List.Icon {...props} icon='arrow-right' />}
-                    onPress={() => Linking.openURL('https://podman.io/docs/installation')}
+                    onPress={() => Linking.openURL('https://docs.docker.com/engine/install/')}
+                />
+
+                <ClickableStep
+                    title={strings.docker.postInstallTitle}
+                    descriptionNumberOfLines={4}
+                    description={strings.docker.postInstallDescription}
+                    left={ props => <List.Icon {...props} icon='numeric-3-circle' />}
+                    right={props => <List.Icon {...props} icon='arrow-right' />}
+                    onPress={() => Linking.openURL('https://docs.docker.com/engine/install/linux-postinstall/')}
                 />
 
                 <ClickableStep
                     title={strings.docker.installReleaseTitle}
                     descriptionNumberOfLines={4}
                     description={strings.docker.installReleaseDescription}
-                    left={ props => <List.Icon {...props} icon='numeric-3-circle' />}
+                    left={ props => <List.Icon {...props} icon='numeric-4-circle' />}
                     right={props => <List.Icon {...props} icon='bash' />}
                 />
 
@@ -138,7 +147,7 @@ const TabDocker = ({ isSmallScreen = false }) => {
                     title={strings.docker.accessWebTitle}
                     descriptionNumberOfLines={4}
                     description={strings.docker.accessWebDescription}
-                    left={ props => <List.Icon {...props} icon='numeric-4-circle' />}
+                    left={ props => <List.Icon {...props} icon='numeric-5-circle' />}
                     right={props => <List.Icon {...props} icon='web' />}
                     style={{ marginTop: 16 }}
                 />
@@ -148,7 +157,7 @@ const TabDocker = ({ isSmallScreen = false }) => {
                         title={strings.docker.wslNextStepsTitle}
                         descriptionNumberOfLines={4}
                         description={strings.docker.wslNextStepsDescription}
-                        left={ props => <List.Icon {...props} icon='numeric-5-circle' color="orange" />}
+                        left={ props => <List.Icon {...props} icon='numeric-6-circle' color="orange" />}
                         right={props => <List.Icon {...props} icon='usb' />}
                         onPress={() => Linking.openURL('https://github.com/wprint3d/wprint3d-core?tab=readme-ov-file#next-steps-on-your-windows-host')}
                     />
