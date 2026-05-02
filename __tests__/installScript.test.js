@@ -33,7 +33,7 @@ const createTestDirs = () => {
   fs.mkdirSync(homeDir, { recursive: true });
   fs.mkdirSync(logsDir, { recursive: true });
 
-  ["bash", "cat", "chmod", "dirname", "mkdir", "mv", "readlink", "rm", "sed", "touch"].forEach((commandName) =>
+  ["bash", "cat", "chmod", "date", "dirname", "mkdir", "mv", "readlink", "rm", "sed", "touch"].forEach((commandName) =>
     symlinkSystemCommand(fakeBin, commandName)
   );
 
@@ -56,20 +56,21 @@ const writeSuccessfulCurl = (fakeBin, runnerBody) => {
     `#!/usr/bin/env bash
 set -euo pipefail
 url="\${!#}"
+base_url="\${url%%\\?*}"
 
-if [[ "$url" == "https://api.github.com/repos/wprint3d/wprint3d-core" ]]; then
+if [[ "$base_url" == "https://api.github.com/repos/wprint3d/wprint3d-core" ]]; then
   printf '{"default_branch":"main"}'
   exit 0
 fi
 
-if [[ "$url" == "https://raw.githubusercontent.com/wprint3d/wprint3d-core/refs/heads/main/run.sh" ]]; then
+if [[ "$base_url" == "https://raw.githubusercontent.com/wprint3d/wprint3d-core/main/run.sh" ]]; then
   cat <<'EOF'
 ${runnerBody}
 EOF
   exit 0
 fi
 
-if [[ "$url" == "https://raw.githubusercontent.com/wprint3d/wprint3d-core/refs/heads/main/internal/migrate-podman-mongo-volume-to-docker.sh" ]]; then
+if [[ "$base_url" == "https://raw.githubusercontent.com/wprint3d/wprint3d-core/main/internal/migrate-podman-mongo-volume-to-docker.sh" ]]; then
   cat <<'EOF'
 #!/usr/bin/env bash
 printf 'migration-helper-ready\n'

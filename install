@@ -212,7 +212,7 @@ download_core_file() {
 
     temp_file="$(mktemp --suffix=-wprint3d-download)"
 
-    curl -sfL "https://raw.githubusercontent.com/wprint3d/wprint3d-core/refs/heads/${default_branch}/${source_path}" > "$temp_file"
+    curl -sfL "https://raw.githubusercontent.com/wprint3d/wprint3d-core/${default_branch}/${source_path}?v=$(date +%s)" > "$temp_file"
 
     if [[ ! -s "$temp_file" ]]; then
         log "Failed to download ${source_path}."
